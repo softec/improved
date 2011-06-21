@@ -1,63 +1,67 @@
-Prototype
+Improved
 =========
 
 #### An object-oriented JavaScript framework ####
 
-Prototype is a JavaScript framework that aims to ease development of dynamic 
+Improved is a JavaScript framework that aims to ease development of dynamic 
 web applications.  It offers a familiar class-style OO framework, extensive
 Ajax support, higher-order programming constructs, and easy DOM manipulation.
+Improved has been derived from the Prototype Javascript Framework initiated
+by Sam Stephenson.
 
 ### Targeted platforms ###
 
-Prototype currently targets the following platforms:
+Improved is expected to work on any Javascript 1.2 compliant browser and
+has been tested on the following platforms:
 
-* Microsoft Internet Explorer for Windows, version 6.0 and higher
-* Mozilla Firefox 1.5 and higher
-* Apple Safari 2.0.4 and higher
-* Opera 9.25 and higher
-* Chrome 1.0 and higher
+ * Chrome 6 and higher
+ * Apple Safari 3 and higher
+ * Mozilla Firefox 2 and higher
+ * Microsoft Internet Explorer for Windows, version 6 and higher
+ * Opera 10 and higher
 
-Using Prototype
+Using Improved
 ---------------
 
-To use Prototype in your application, download the latest release from the 
-Prototype web site (<http://prototypejs.org/download>) and copy 
-`dist/prototype.js` to a suitable location. Then include it in your HTML
-like so:
+To use Improved in your application, you may download the latest release
+from our [Maven Repository](http://nexus.softec.lu:8081/service/local/repositories/opensource/content/lu/softec/js/improved/1.0/improved-1.0-compressed.jar)
+and extract improved.js to a suitable location. Then include it
+early in your HTML like so:
 
-    <script type="text/javascript" src="/path/to/prototype.js"></script>
+    <script type="text/javascript" src="/path/to/improved.js"></script>
 
-### Building Prototype from source ###
+You may also reference it directly in your maven build, when using
+maven-javascript-plugin, using the following dependency:
 
-`prototype.js` is a composite file generated from many source files in 
-the `src/` directory. To build Prototype, you'll need:
+    <dependency>
+      <groupId>lu.softec.js</groupId>
+      <artifactId>improved</artifactId>
+      <version>1.0</version>
+      <type>javascript</type>
+      <scope>runtime</scope>
+    </dependency>
 
-* a copy of the Prototype source tree, either from a distribution tarball or
-  from the Git repository (see below)
-* Ruby 1.8.2 or higher (<http://www.ruby-lang.org/>)
-* Rake--Ruby Make (<http://rake.rubyforge.org/>)
-* RDoc, if your Ruby distribution does not include it
+### Building Improved from source ###
 
-From the root Prototype directory,
+The build is based on Maven, using our modified maven-javascript-plugin.
 
-* `rake dist` will preprocess the Prototype source using Sprockets and 
-  generate the composite `dist/prototype.js`.
-* `rake package` will create a distribution tarball in the 
-  `pkg/` directory.
-
-Contributing to Prototype
+Contributing to Improved
 -------------------------
 
-Check out the Prototype source with 
-
-    $ git clone git://github.com/sstephenson/prototype.git
-    $ cd prototype
-    $ git submodule init
-    $ git submodule update vendor/sprockets vendor/pdoc vendor/unittest_js
-
-Find out how to contribute: <http://prototypejs.org/contribute>.
+Fork our repository on GitHub and submit your pull request.
 
 Documentation
 -------------
 
-Please see the online Prototype API: <http://api.prototypejs.org>.
+The documentation has yet to be written
+
+License
+-------
+
+Improved by [SOFTEC sa](http://softec.lu) is license under
+a [GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2.1 of the License, or (at your option) any
+later version.
+If you need a different license, please [contact us](mailto:support@softec.lu)
+with a description of your expect usage, and we will propose you an
+appropriate agreement on a case by case basis.
