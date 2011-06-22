@@ -590,6 +590,28 @@ Object.extend(String.prototype, (function() {
   }
 
   /**
+   *  String#uncamelize() -> String
+   *
+   *  Converts a camelCase string into a dash separated equivalent. For
+   *  instance, `'fooBar'` would be converted to `'foo-bar'`.
+   *
+   *  Improved uses this internally for translating CSS properties from their
+   *  DOM `style` property equivalents.
+   *
+   *  ##### Examples
+   *
+   *      'backgroundColor'.uncamelize();
+   *      // -> 'background-color'
+   *
+   *      'MozBinding'.uncamelize();
+   *      // -> '-moz-binding'
+  **/
+  function uncamelize() {
+    return this.replace(/([A-Z\d]*[a-z\d]*)([A-Z\d])/g, '$1-$2')
+               .toLowerCase();
+  }
+
+  /**
    *  String#capitalize() -> String
    *
    *  Capitalizes the first letter of a string and downcases all the others.
@@ -897,6 +919,7 @@ Object.extend(String.prototype, (function() {
     succ:           succ,
     times:          times,
     camelize:       camelize,
+    uncamelize:     uncamelize,
     capitalize:     capitalize,
     underscore:     underscore,
     dasherize:      dasherize,

@@ -59,4 +59,42 @@ describe('Element', function()
     expect(testdiv.text()).toEqual('<b>tagtest</b>');
   });
 
+  it('can remove styles', function()
+  {
+    var testdiv = $('testdiv');
+
+    testdiv.setStyle({backgroundColor: 'red'});
+    expect(testdiv.getStyle('backgroundColor')).toEqual('red');
+    testdiv.removeStyle('backgroundColor');
+    expect(testdiv.getStyle('backgroundColor')).not.toEqual('red');
+
+    testdiv.setStyle({backgroundColor: 'red'});
+    testdiv.removeStyle(['backgroundColor']);
+    expect(testdiv.getStyle('backgroundColor')).not.toEqual('red');
+
+    testdiv.setStyle({backgroundColor: 'red'});
+    testdiv.setStyle({backgroundColor: null});
+    expect(testdiv.getStyle('backgroundColor')).not.toEqual('red');
+
+    testdiv.setStyle({backgroundColor: 'red'});
+    testdiv.setStyle({backgroundColor: undefined});
+    expect(testdiv.getStyle('backgroundColor')).not.toEqual('red');
+
+    testdiv.setStyle({transitionDuration: '10s'});
+    expect(testdiv.getStyle('transitionDuration')).toEqual('10s');
+    testdiv.removeStyle('transitionDuration');
+    expect(testdiv.getStyle('transitionDuration')).not.toEqual('10s');
+
+    testdiv.setStyle({transitionDuration: '10s'});
+    testdiv.removeStyle(['transitionDuration']);
+    expect(testdiv.getStyle('transitionDuration')).not.toEqual('10s');
+
+    testdiv.setStyle({transitionDuration: '10s'});
+    testdiv.setStyle({transitionDuration: null});
+    expect(testdiv.getStyle('transitionDuration')).not.toEqual('10s');
+
+    testdiv.setStyle({transitionDuration: '10s'});
+    testdiv.setStyle({transitionDuration: undefined});
+    expect(testdiv.getStyle('transitionDuration')).not.toEqual('10s');
+  });
 });

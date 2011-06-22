@@ -2304,6 +2304,33 @@ Element.Methods = {
     return $(element).getStyle('opacity');
   },
 
+  /**
+   *  Element.removeStyle(@element, styles) -> Element
+   *
+   *  Remove styles from the `element`'s CSS style properties.
+   *  Styles are passed as an array of style names in their
+   *  camelized form.
+   *
+   *  ##### Examples
+   *
+   *      $(element).removeStyle([
+   *        'backgroundColor',
+   *        'fontSize'
+   *      ]);
+   *      // -> Element
+  **/
+  removeStyle: function(element, styles) {
+    element = $(element);
+    var elementStyle = element.style, re = new RegExp('^'+Improved.BrowserExtensions.jsPrefix);
+    if (Object.isString(styles)) styles = [styles];
+    styles.each(function(style) {
+      style = Element._styleTranslations[style] || style;
+      style = style.replace(re,Improved.BrowserExtensions.cssPrefix);
+      elementStyle.removeProperty(style.uncamelize());
+    });
+    return element;
+  },
+
   /** 
    *  Element.setStyle(@element, styles) -> Element
    *  
@@ -2345,16 +2372,24 @@ Element.Methods = {
   **/
   setStyle: function(element, styles) {
     element = $(element);
-    var elementStyle = element.style, match;
+    var elementStyle = element.style, value, rmStyle = [];
     if (Object.isString(styles)) {
       element.style.cssText += ';' + styles;
       return styles.include('opacity') ?
         element.setOpacity(styles.match(/opacity:\s*(\d?\.?\d*)/)[1]) : element;
     }
-    for (var property in styles)
-      if (property == 'opacity') element.setOpacity(styles[property]);
-      else elementStyle[Element._styleTranslations[property] || property] = styles[property];
-
+    for (var property in styles) {
+      value = styles[property];
+      if (property == 'opacity') element.setOpacity(value);
+      else {
+        if( value == null || typeof value === 'undefined' ) {
+          rmStyle.push(property);
+        } else {
+          elementStyle[Element._styleTranslations[property] || property] = value;
+        }
+      }
+    }
+    if(rmStyle.length > 0) element.removeStyle(rmStyle);
     return element;
   },
 
@@ -2785,34 +2820,45 @@ if (Improved.Browser.Opera) {
 
 else if (Improved.Browser.IE) {
 
-  Element._styleTranslations = (function(translation) {
-    translation['float'] = translation['cssFloat'] = 'styleFloat';
-
-    return translation;
-  })(Element._styleTranslations);
-
-  Element.Methods.getStyle = function(element, style) {
-    element = $(element);
-    style = style.camelize();
-    style = Element._styleTranslations[style] || style;
-    var value = element.style[style];
-    if (!value && element.currentStyle) value = element.currentStyle[style];
-
-    if (style == 'opacity' && Improved.Browser.IEVersion < 9) {
-      if (value = (element.getStyle('filter') || '').match(/alpha\(opacity=(.*)\)/))
-        if (value[1]) return parseFloat(value[1]) / 100;
-      return 1.0;
-    }
-
-    if (value == 'auto') {
-      if ((style == 'width' || style == 'height') && (element.getStyle('display') != 'none'))
-        return element['offset' + style.capitalize()] + 'px';
-      return null;
-    }
-    return value;
-  };
-
   if (Improved.Browser.IEVersion < 9) {
+    Element._styleTranslations = (function(translation) {
+      translation['float'] = translation['cssFloat'] = 'styleFloat';
+
+      return translation;
+    })(Element._styleTranslations);
+
+    Element.Methods.getStyle = function(element, style) {
+      element = $(element);
+      style = style.camelize();
+      style = Element._styleTranslations[style] || style;
+      var value = element.style[style];
+      if (!value && element.currentStyle) value = element.currentStyle[style];
+
+      if (style == 'opacity') {
+        if (value = (element.getStyle('filter') || '').match(/alpha\(opacity=(.*)\)/))
+          if (value[1]) return parseFloat(value[1]) / 100;
+        return 1.0;
+      }
+  
+      if (value == 'auto') {
+        if ((style == 'width' || style == 'height') && (element.getStyle('display') != 'none'))
+          return element['offset' + style.capitalize()] + 'px';
+        return null;
+      }
+      return value;
+    };
+
+    Element.Methods.removeStyle = function(element, styles) {
+      element = $(element);
+      var elementStyle = element.style;
+      if (Object.isString(styles)) styles = [styles];
+      styles.each(function(style) {
+        style = Element._styleTranslations[style] || style;
+        elementStyle.removeAttribute(style);
+      });
+      return element;
+    };
+
     Element.Methods.setOpacity = function(element, value) {
       function stripAlpha(filter){
         return filter.replace(/alpha\([^\)]*\)/gi,'');
