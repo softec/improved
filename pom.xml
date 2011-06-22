@@ -100,6 +100,7 @@
             <source>lang/error.js</source>
             <source>lang/event.js</source>
             <source>ajax/ajax.js</source>
+            <source>ajax/jsonp_transport.js</source>
             <source>ajax/responders.js</source>
             <source>ajax/base.js</source>
             <source>ajax/request.js</source>

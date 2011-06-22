@@ -41,6 +41,7 @@
         <include>lang/error.js</include>
         <include>lang/event.js</include>
         <include>ajax/ajax.js</include>
+        <include>ajax/jsonp_transport.js</include>
         <include>ajax/responders.js</include>
         <include>ajax/base.js</include>
         <include>ajax/request.js</include>

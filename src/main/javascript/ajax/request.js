@@ -196,7 +196,15 @@ Ajax.Request = Class.create(Ajax.Base, {
   **/
   initialize: function($super, url, options) {
     $super(options);
-    this.transport = Ajax.getTransport();
+    if( this.options.method.toLowerCase() != 'jsonp' ) {
+      this.transport = Ajax.getTransport();
+    } else {
+      this.transport = new Ajax.JSONPTransport(this.options.callbackParam,
+                                               this.options.evalJSON, this.isSameOrigin.bind(this),
+                                               this.options.timeout);
+      this.options.method = 'get';
+      this.options.asynchronous = true;
+    }
     this.request(url);
   },
 

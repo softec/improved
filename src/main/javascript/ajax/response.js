@@ -92,7 +92,7 @@ Ajax.Response = Class.create({
     var transport  = this.transport  = request.transport,
         readyState = this.readyState = transport.readyState;
 
-    if ((readyState > 2 && !Improved.Browser.IE) || readyState == 4) {
+    if ((readyState > 2 && !(Improved.Browser.IE || this.transport.callback)) || readyState == 4) {
       this.status       = this.getStatus();
       this.statusText   = this.getStatusText();
       this.responseText = String.interpret(transport.responseText);
@@ -185,6 +185,9 @@ Ajax.Response = Class.create({
   },
 
   _getResponseJSON: function() {
+    if( this.transport.responseJSON ) {
+      return this.transport.responseJSON;
+    }
     var options = this.request.options;
     if (!options.evalJSON || (options.evalJSON != 'force' &&
       !(this.getHeader('Content-type') || '').include('application/json')) ||
