@@ -55,6 +55,7 @@
         <include>dom/form.js</include>
         <include>dom/event.js</include>
         <include>dom/element.js</include>
+        <include>dom/animation.js</include>
       </includes>
     </script>
   </scripts>
