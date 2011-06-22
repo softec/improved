@@ -1,6 +1,29 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 
 (function() {
-  
+
   // Converts a CSS percentage value to a decimal.
   // Ex: toDecimal("30%"); // -> 0.3
   function toDecimal(pctString) {
@@ -8,11 +31,11 @@
     if (!match) return null;
     return (Number(match[1]) / 100);
   }
-  
+
   // Can be called like this:
   //   getPixelValue("11px");
   // Or like this:
-  //   getPixelValue(someElement, 'paddingTop');  
+  //   getPixelValue(someElement, 'paddingTop');
   function getPixelValue(value, property, context) {
     var element = null;
     if (Object.isElement(value)) {
@@ -23,32 +46,32 @@
     if (value === null) {
       return null;
     }
-    
+
     // Non-IE browsers will always return pixels if possible.
     // (We use parseFloat instead of parseInt because Firefox can return
     // non-integer pixel values.)
     if ((/^(?:-)?\d+(\.\d+)?(px)?$/i).test(value)) {
       return window.parseFloat(value);
     }
-    
-    var isPercentage = value.include('%'), isViewport = (context === document.viewport);    
-    
+
+    var isPercentage = value.include('%'), isViewport = (context === document.viewport);
+
     // When IE gives us something other than a pixel value, this technique
     // (invented by Dean Edwards) will convert it to pixels.
     //
     // (This doesn't work for percentage values on elements with `position: fixed`
     // because those percentages are relative to the viewport.)
     if (/\d/.test(value) && element && element.runtimeStyle && !(isPercentage && isViewport)) {
-      var style = element.style.left, rStyle = element.runtimeStyle.left; 
+      var style = element.style.left, rStyle = element.runtimeStyle.left;
       element.runtimeStyle.left = element.currentStyle.left;
-      element.style.left = value || 0;  
+      element.style.left = value || 0;
       value = element.style.pixelLeft;
       element.style.left = style;
       element.runtimeStyle.left = rStyle;
-      
+
       return value;
     }
-    
+
     // For other browsers, we have to do a bit of work.
     // (At this point, only percentages should be left; all other CSS units
     // are converted to pixels by getComputedStyle.)
@@ -57,13 +80,13 @@
       var decimal = toDecimal(value);
       var whole = null;
       var position = element.getStyle('position');
-      
+
       var isHorizontal = property.include('left') || property.include('right') ||
        property.include('width');
-       
+
       var isVertical =  property.include('top') || property.include('bottom') ||
         property.include('height');
-        
+
       if (context === document.viewport) {
         if (isHorizontal) {
           whole = document.viewport.getWidth();
@@ -77,24 +100,24 @@
           whole = $(context).measure('height');
         }
       }
-      
+
       return (whole === null) ? 0 : whole * decimal;
     }
-    
+
     // If we get this far, we should probably give up.
     return 0;
   }
-  
+
   // Turns plain numbers into pixel measurements.
   function toCSSPixels(number) {
     if (Object.isString(number) && number.endsWith('px')) {
       return number;
-    }    
-    return number + 'px';    
+    }
+    return number + 'px';
   }
-  
+
   function isDisplayed(element) {
-    var originalElement = element;    
+    var originalElement = element;
     while (element && element.parentNode) {
       var display = element.getStyle('display');
       if (display === 'none') {
@@ -104,8 +127,8 @@
     }
     return true;
   }
-  
-  var hasLayout = Prototype.K;  
+
+  var hasLayout = Improved.K;
   if ('currentStyle' in document.documentElement) {
     hasLayout = function(element) {
       if (!element.currentStyle.hasLayout) {
@@ -240,12 +263,12 @@
     initialize: function($super, element, preCompute) {
       $super();
       this.element = $(element);
-      
+
       // nullify all properties keys
       Element.Layout.PROPERTIES.each( function(property) {
         this._set(property, null);
       }, this);
-      
+
       // The 'preCompute' boolean tells us whether we should fetch all values
       // at once. If so, we should do setup/teardown only once. We set a flag
       // so that we can ignore calls to `_begin` and `_end` elsewhere.
@@ -257,11 +280,11 @@
         this._preComputing = false;
       }
     },
-    
+
     _set: function(property, value) {
       return Hash.prototype.set.call(this, property, value);
-    },    
-    
+    },
+
     // TODO: Investigate.
     set: function(property, value) {
       throw "Properties of Element.Layout are read-only.";
@@ -282,23 +305,23 @@
     **/
     get: function($super, property) {
       // Try to fetch from the cache.
-      var value = $super(property);      
+      var value = $super(property);
       return value === null ? this._compute(property) : value;
     },
-    
-    // `_begin` and `_end` are two functions that are called internally 
+
+    // `_begin` and `_end` are two functions that are called internally
     // before and after any measurement is done. In certain conditions (e.g.,
     // when hidden), elements need a "preparation" phase that ensures
     // accuracy of measurements.
     _begin: function() {
-      if (this._prepared) return;      
+      if (this._prepared) return;
 
       var element = this.element;
       if (isDisplayed(element)) {
         this._prepared = true;
         return;
       }
-      
+
       // Remember the original values for some styles we're going to alter.
       var originalStyles = {
         position:   element.style.position   || '',
@@ -306,13 +329,13 @@
         visibility: element.style.visibility || '',
         display:    element.style.display    || ''
       };
-      
+
       // We store them so that the `_end` function can retrieve them later.
       element.store('prototype_original_styles', originalStyles);
-      
+
       var position = element.getStyle('position'),
        width = element.getStyle('width');
-      
+
       if (width === "0px" || width === null) {
         // Opera won't report the true width of the element through
         // `getComputedStyle` if it's hidden. If we got a nonsensical value,
@@ -320,19 +343,19 @@
         element.style.display = 'block';
         width = element.getStyle('width');
       }
-      
-      // Preserve the context in case we get a percentage value.  
+
+      // Preserve the context in case we get a percentage value.
       var context = (position === 'fixed') ? document.viewport :
        element.parentNode;
-       
+
       element.setStyle({
         position:   'absolute',
         visibility: 'hidden',
         display:    'block'
       });
-      
+
       var positionedWidth = element.getStyle('width');
-      
+
       var newWidth;
       if (width && (positionedWidth === width)) {
         // If the element's width is the same both before and after
@@ -359,27 +382,27 @@
          this.get('border-right') -
          this.get('margin-right');
       }
-      
+
       element.setStyle({ width: newWidth + 'px' });
-      
+
       // The element is now ready for measuring.
       this._prepared = true;
     },
-    
+
     _end: function() {
       var element = this.element;
       var originalStyles = element.retrieve('prototype_original_styles');
-      element.store('prototype_original_styles', null);      
+      element.store('prototype_original_styles', null);
       element.setStyle(originalStyles);
       this._prepared = false;
     },
-    
+
     _compute: function(property) {
       var COMPUTATIONS = Element.Layout.COMPUTATIONS;
       if (!(property in COMPUTATIONS)) {
         throw "Property not found.";
       }
-      
+
       return this._set(property, COMPUTATIONS[property].call(this, this.element));
     },
     
@@ -454,7 +477,7 @@
 
       keys.each( function(key) {
         // Key needs to be a valid Element.Layout property...
-        if (!Element.Layout.PROPERTIES.include(key)) return;        
+        if (!Element.Layout.PROPERTIES.include(key)) return;
         // ...but not a composite property.
         if (Element.Layout.COMPOSITE_PROPERTIES.include(key)) return;
 
@@ -465,12 +488,12 @@
       }, this);
       return css;
     },
-    
+
     inspect: function() {
       return "#<Element.Layout>";
     }
   });
-  
+
   Object.extend(Element.Layout, {
     /**
      *  Element.Layout.PROPERTIES = Array
@@ -487,17 +510,17 @@
      *  properties.
     **/
     COMPOSITE_PROPERTIES: $w('padding-box-width padding-box-height margin-box-width margin-box-height border-box-width border-box-height'),
-    
+
     COMPUTATIONS: {
       'height': function(element) {
         if (!this._preComputing) this._begin();
-        
+
         var bHeight = this.get('border-box-height');
         if (bHeight <= 0) {
           if (!this._preComputing) this._end();
           return 0;
         }
-        
+
         var bTop = this.get('border-top'),
          bBottom = this.get('border-bottom');
 
@@ -508,10 +531,10 @@
 
         return bHeight - bTop - bBottom - pTop - pBottom;
       },
-      
+
       'width': function(element) {
         if (!this._preComputing) this._begin();
-        
+
         var bWidth = this.get('border-box-width');
         if (bWidth <= 0) {
           if (!this._preComputing) this._end();
@@ -523,17 +546,17 @@
 
         var pLeft = this.get('padding-left'),
          pRight = this.get('padding-right');
-        
+
         if (!this._preComputing) this._end();
-        
+
         return bWidth - bLeft - bRight - pLeft - pRight;
       },
-      
+
       'padding-box-height': function(element) {
         var height = this.get('height'),
          pTop = this.get('padding-top'),
          pBottom = this.get('padding-bottom');
-         
+
         return height + pTop + pBottom;
       },
 
@@ -541,32 +564,32 @@
         var width = this.get('width'),
          pLeft = this.get('padding-left'),
          pRight = this.get('padding-right');
-         
+
         return width + pLeft + pRight;
       },
-      
+
       'border-box-height': function(element) {
         if (!this._preComputing) this._begin();
         var height = element.offsetHeight;
         if (!this._preComputing) this._end();
         return height;
       },
-            
+
       'border-box-width': function(element) {
         if (!this._preComputing) this._begin();
         var width = element.offsetWidth;
         if (!this._preComputing) this._end();
         return width;
       },
-      
+
       'margin-box-height': function(element) {
         var bHeight = this.get('border-box-height'),
          mTop = this.get('margin-top'),
          mBottom = this.get('margin-bottom');
-         
+
         if (bHeight <= 0) return 0;
-         
-        return bHeight + mTop + mBottom;        
+
+        return bHeight + mTop + mBottom;
       },
 
       'margin-box-width': function(element) {
@@ -575,94 +598,94 @@
          mRight = this.get('margin-right');
 
         if (bWidth <= 0) return 0;
-         
+
         return bWidth + mLeft + mRight;
       },
-      
+
       'top': function(element) {
         var offset = element.positionedOffset();
         return offset.top;
       },
-      
+
       'bottom': function(element) {
         var offset = element.positionedOffset(),
          parent = element.getOffsetParent(),
          pHeight = parent.measure('height');
-        
+
         var mHeight = this.get('border-box-height');
-        
+
         return pHeight - mHeight - offset.top;
-        // 
+        //
         // return getPixelValue(element, 'bottom');
       },
-      
+
       'left': function(element) {
         var offset = element.positionedOffset();
         return offset.left;
       },
-      
+
       'right': function(element) {
         var offset = element.positionedOffset(),
          parent = element.getOffsetParent(),
          pWidth = parent.measure('width');
-        
+
         var mWidth = this.get('border-box-width');
-        
+
         return pWidth - mWidth - offset.left;
-        //  
+        //
         // return getPixelValue(element, 'right');
       },
-      
+
       'padding-top': function(element) {
         return getPixelValue(element, 'paddingTop');
       },
-      
+
       'padding-bottom': function(element) {
         return getPixelValue(element, 'paddingBottom');
       },
-      
+
       'padding-left': function(element) {
         return getPixelValue(element, 'paddingLeft');
       },
-      
+
       'padding-right': function(element) {
         return getPixelValue(element, 'paddingRight');
       },
-      
+
       'border-top': function(element) {
         return getPixelValue(element, 'borderTopWidth');
       },
-      
+
       'border-bottom': function(element) {
         return getPixelValue(element, 'borderBottomWidth');
       },
-      
+
       'border-left': function(element) {
         return getPixelValue(element, 'borderLeftWidth');
       },
-      
+
       'border-right': function(element) {
         return getPixelValue(element, 'borderRightWidth');
       },
-      
+
       'margin-top': function(element) {
         return getPixelValue(element, 'marginTop');
       },
-      
+
       'margin-bottom': function(element) {
         return getPixelValue(element, 'marginBottom');
       },
-      
+
       'margin-left': function(element) {
         return getPixelValue(element, 'marginLeft');
       },
-      
+
       'margin-right': function(element) {
         return getPixelValue(element, 'marginRight');
       }
     }
   });
-  
+
   // An easier way to compute right and bottom offsets.
   if ('getBoundingClientRect' in document.documentElement) {
     Object.extend(Element.Layout.COMPUTATIONS, {
@@ -670,15 +693,15 @@
         var parent = hasLayout(element.getOffsetParent());
         var rect = element.getBoundingClientRect(),
          pRect = parent.getBoundingClientRect();
-         
+
         return (pRect.right - rect.right).round();
       },
-      
+
       'bottom': function(element) {
         var parent = hasLayout(element.getOffsetParent());
         var rect = element.getBoundingClientRect(),
          pRect = parent.getBoundingClientRect();
-         
+
         return (pRect.bottom - rect.bottom).round();
       }
     });
@@ -703,7 +726,7 @@
     initialize: function(left, top) {
       this.left = left.round();
       this.top  = top.round();
-      
+
       // Act like an array.
       this[0] = this.left;
       this[1] = this.top;
@@ -719,7 +742,7 @@
     **/
     relativeTo: function(offset) {
       return new Element.Offset(
-        this.left - offset.left, 
+        this.left - offset.left,
         this.top  - offset.top
       );
     },
@@ -822,8 +845,8 @@
    *    CSS (`display: none`), but _only_ if its parent element is visible.
   **/
   function measure(element, property) {
-    return $(element).getLayout().get(property);  
-  }  
+    return $(element).getLayout().get(property);
+  }
 
   /**
    *  Element.getDimensions(@element) -> Object
@@ -876,11 +899,11 @@
   function getDimensions(element) {
     element = $(element);
     var display = Element.getStyle(element, 'display');
-    
+
     if (display && display !== 'none') {
       return { width: element.offsetWidth, height: element.offsetHeight };
     }
-    
+
     // All *Width and *Height properties give 0 on elements with
     // `display: none`, so show the element temporarily.
     var style = element.style;
@@ -889,7 +912,7 @@
       position:   style.position,
       display:    style.display
     };
-    
+
     var newStyles = {
       visibility: 'hidden',
       display:    'block'
@@ -898,14 +921,14 @@
     // Switching `fixed` to `absolute` causes issues in Safari.
     if (originalStyles.position !== 'fixed')
       newStyles.position = 'absolute';
-    
+
     Element.setStyle(element, newStyles);
-    
+
     var dimensions = {
       width:  element.offsetWidth,
       height: element.offsetHeight
     };
-    
+
     Element.setStyle(element, originalStyles);
 
     return dimensions;
@@ -919,7 +942,7 @@
   **/
   function getOffsetParent(element) {
     element = $(element);
-    
+
     // For unusual cases like these, we standardize on returning the BODY
     // element as the offset parent.
     if (isDocument(element) || isDetached(element) || isBody(element) || isHtml(element))
@@ -928,13 +951,13 @@
     // IE reports offset parent incorrectly for inline elements.
     var isInline = (Element.getStyle(element, 'display') === 'inline');
     if (!isInline && element.offsetParent) return $(element.offsetParent);
-    
+
     while ((element = element.parentNode) && element !== document.body) {
       if (Element.getStyle(element, 'position') !== 'static') {
         return isHtml(element) ? $(document.body) : $(element);
       }
     }
-    
+
     return $(document.body);
   }
   
@@ -969,7 +992,7 @@
 
     // Account for the margin of the element.
     var layout = element.getLayout();
-    
+
     var valueT = 0, valueL = 0;
     do {
       valueT += element.offsetTop  || 0;
@@ -981,10 +1004,10 @@
         if (p !== 'static') break;
       }
     } while (element);
-    
+
     valueL -= layout.get('margin-top');
     valueT -= layout.get('margin-left');
-    
+
     return new Element.Offset(valueL, valueT);
   }
 
@@ -1031,7 +1054,7 @@
         valueT -= element.scrollTop  || 0;
         valueL -= element.scrollLeft || 0;
       }
-    } while (element = element.parentNode);    
+    } while (element = element.parentNode);
     return new Element.Offset(valueL, valueT);
   }
   
@@ -1043,25 +1066,25 @@
   **/
   function absolutize(element) {
     element = $(element);
-    
+
     if (Element.getStyle(element, 'position') === 'absolute') {
       return element;
     }
-    
-    var offsetParent = getOffsetParent(element);    
+
+    var offsetParent = getOffsetParent(element);
     var eOffset = element.viewportOffset(),
      pOffset = offsetParent.viewportOffset();
-     
+
     var offset = eOffset.relativeTo(pOffset);
-    var layout = element.getLayout();    
-    
+    var layout = element.getLayout();
+
     element.store('prototype_absolutize_original_styles', {
       left:   element.getStyle('left'),
       top:    element.getStyle('top'),
       width:  element.getStyle('width'),
       height: element.getStyle('height')
     });
-    
+
     element.setStyle({
       position: 'absolute',
       top:    offset.top + 'px',
@@ -1069,7 +1092,7 @@
       width:  layout.get('width') + 'px',
       height: layout.get('height') + 'px'
     });
-    
+
     return element;
   }
   
@@ -1086,22 +1109,22 @@
     if (Element.getStyle(element, 'position') === 'relative') {
       return element;
     }
-    
+
     // Restore the original styles as captured by Element#absolutize.
-    var originalStyles = 
+    var originalStyles =
      element.retrieve('prototype_absolutize_original_styles');
-    
+
     if (originalStyles) element.setStyle(originalStyles);
     return element;
   }
-    
-  if (Prototype.Browser.IE) {
+
+  if (Improved.Browser.IE) {
     // IE doesn't report offsets correctly for static elements, so we change them
     // to "relative" to get the values, then change them back.
     getOffsetParent = getOffsetParent.wrap(
       function(proceed, element) {
         element = $(element);
-        
+
         // For unusual cases like these, we standardize on returning the BODY
         // element as the offset parent.
         if (isDocument(element) || isDetached(element) || isBody(element) || isHtml(element))
@@ -1116,7 +1139,7 @@
         return value;
       }
     );
-    
+
     positionedOffset = positionedOffset.wrap(function(proceed, element) {
       element = $(element);
       if (!element.parentNode) return new Element.Offset(0, 0);
@@ -1134,7 +1157,7 @@
       element.setStyle({ position: position });
       return value;
     });
-  } else if (Prototype.Browser.Webkit) {    
+  } else if (Improved.Browser.Webkit) {
     // Safari returns margins on body which is incorrect if the child is absolutely
     // positioned.  For performance reasons, redefine Element#cumulativeOffset for
     // KHTML/WebKit only.
@@ -1158,40 +1181,40 @@
   Element.addMethods({
     getLayout:              getLayout,
     measure:                measure,
-    getDimensions:          getDimensions,    
+    getDimensions:          getDimensions,
     getOffsetParent:        getOffsetParent,
     cumulativeOffset:       cumulativeOffset,
     positionedOffset:       positionedOffset,
     cumulativeScrollOffset: cumulativeScrollOffset,
-    viewportOffset:         viewportOffset,    
+    viewportOffset:         viewportOffset,
     absolutize:             absolutize,
-    relativize:             relativize    
+    relativize:             relativize
   });
-  
+
   function isBody(element) {
     return element.nodeName.toUpperCase() === 'BODY';
   }
-  
+
   function isHtml(element) {
     return element.nodeName.toUpperCase() === 'HTML';
   }
-  
+
   function isDocument(element) {
     return element.nodeType === Node.DOCUMENT_NODE;
   }
-  
+
   function isDetached(element) {
     return element !== document.body &&
      !Element.descendantOf(element, document.body);
   }
-  
+
   // If the browser supports the nonstandard `getBoundingClientRect`
   // (currently only IE and Firefox), it becomes far easier to obtain
   // true offsets.
   if ('getBoundingClientRect' in document.documentElement) {
     Element.addMethods({
       viewportOffset: function(element) {
-        element = $(element);        
+        element = $(element);
         if (isDetached(element)) return new Element.Offset(0, 0);
 
         var rect = element.getBoundingClientRect(),
@@ -1202,6 +1225,6 @@
         return new Element.Offset(rect.left - docEl.clientLeft,
          rect.top - docEl.clientTop);
       }
-    });    
+    });
   }
 })();

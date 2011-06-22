@@ -1,20 +1,61 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 /** section: Language
  * class Function
  *
  *  Extensions to the built-in `Function` object.
 **/
 Object.extend(Function.prototype, (function() {
-  var slice = Array.prototype.slice;
+  var slice = Array.prototype.slice,
+      push = Array.prototype.push,
+      unshift = Array.prototype.unshift;
 
-  function update(array, args) {
-    var arrayLength = array.length, length = args.length;
-    while (length--) array[arrayLength + length] = args[length];
-    return array;
-  }
-
-  function merge(array, args) {
-    array = slice.call(array, 0);
-    return update(array, args);
+  /**
+   *  Function#functionName() -> String
+   *
+   *  Try to determine the function name and return it.
+   *
+   *  ##### Examples
+   *
+   *      function foobar() {
+   *      }
+   *      foobar.functionName();
+   *      //-> 'foobar'
+   *
+   *      var cat = new Class.create("Animal", { eat: function(){} })
+   *      cat.eat.functionName();
+   *      //-> 'cat.eat'
+   *
+   *      Improved.emptyFunction.functionName();
+   *      //-> undefined
+  **/
+  function functionName() {
+    var funcname = this.name;
+    return funcname || ((funcname == '') ? undefined
+                                         : (this.name = this.toString().match(/^[\s\(]*function\s*([^( ]*)\s*\(/)[1])
+        || undefined);
   }
 
   /**
@@ -32,7 +73,7 @@ Object.extend(Function.prototype, (function() {
    *      fn.argumentNames();
    *      //-> ['foo', 'bar']
    *
-   *      Prototype.emptyFunction.argumentNames();
+   *      Improved.emptyFunction.argumentNames();
    *      //-> []
   **/
   function argumentNames() {
@@ -40,6 +81,14 @@ Object.extend(Function.prototype, (function() {
       .replace(/\/\/.*?[\r\n]|\/\*(?:.|[\r\n])*?\*\//g, '')
       .replace(/\s+/g, '').split(',');
     return names.length == 1 && !names[0] ? [] : names;
+  }
+
+  function unshiftSlice(args, prefixArgs, rm) {
+    var i, n = args.length = (i = args.length) + prefixArgs.length - rm >> 0;
+    while (i--) args[--n] = args[i];
+    i = n; n += rm;
+    while (n) args[--i] = prefixArgs[--n];
+    return args;
   }
 
   /** related to: Function#bindAsEventListener
@@ -105,12 +154,23 @@ Object.extend(Function.prototype, (function() {
    *
    *  (To curry without binding, see [[Function#curry]].)
   **/
-  function bind(context) {
+  function bindNoConv(context) {
     if (arguments.length < 2 && Object.isUndefined(arguments[0])) return this;
-    var __method = this, args = slice.call(arguments, 1);
+    var __method = this, args = arguments;
     return function() {
-      var a = merge(args, arguments);
-      return __method.apply(context, a);
+      return __method.apply(context, unshiftSlice(arguments,args,1));
+    }
+  }
+
+  function bindConv() {
+    if (arguments.length < 2 && Object.isUndefined(arguments[0])) return this;
+    var __method = this, args = [];
+    push.apply(args,arguments);
+    return function() {
+      var a = [];
+      push.apply(a, args);
+      push.apply(a, arguments);
+      return __method.apply(a.shift(), a);
     }
   }
 
@@ -169,11 +229,13 @@ Object.extend(Function.prototype, (function() {
    *        cu.updateTheseHandler.bindAsEventListener(cu, 'dispName', 'dispTitle', 'dispAge')
    *      );
   **/
-  function bindAsEventListener(context) {
-    var __method = this, args = slice.call(arguments, 1);
+  function bindAsEventListener() {
+    var __method = this, args = arguments, context = args[0];
     return function(event) {
-      var a = update([event || window.event], args);
-      return __method.apply(context, a);
+      args[0] = event || window.event;
+      var result = __method.apply(context, args);
+      args[0] = context;
+      return result;
     }
   }
 
@@ -201,11 +263,20 @@ Object.extend(Function.prototype, (function() {
    *
    *  The name "curry" comes from [mathematics](http://en.wikipedia.org/wiki/Currying).
   **/
-  function curry() {
-    if (!arguments.length) return this;
-    var __method = this, args = slice.call(arguments, 0);
+  function curryNoConv() {
+    var __method = this, args = arguments;
     return function() {
-      var a = merge(args, arguments);
+      return __method.apply(this, unshiftSlice(arguments,args,0));
+    }
+  }
+
+  function curryConv() {
+    var __method = this, args = [];
+    push.apply(args,arguments);
+    return function() {
+      var a = [];
+      push.apply(a, args);
+      push.apply(a, arguments);
       return __method.apply(this, a);
     }
   }
@@ -234,12 +305,19 @@ Object.extend(Function.prototype, (function() {
    *      showMsg.delay(0.1, "Hi there!");
    *      // -> Waits a 10th of a second, then alerts "Hi there!"
   **/
-  function delay(timeout) {
-    var __method = this, args = slice.call(arguments, 1);
-    timeout = timeout * 1000;
+  function delayNoConv(timeout) {
+    var __method = this, args = arguments;
     return window.setTimeout(function() {
-      return __method.apply(__method, args);
-    }, timeout);
+      return __method.apply(this, unshiftSlice(arguments,args,1));
+    }, timeout*1000);
+  }
+
+  function delayConv() {
+    var __method = this, args = [];
+    push.apply(args,arguments);
+    return window.setTimeout(function() {
+      return __method.apply(this, args);
+    }, args.shift()*1000);
   }
 
   /**
@@ -268,8 +346,10 @@ Object.extend(Function.prototype, (function() {
    *      // Note that "Three" happens before "Two"
   **/
   function defer() {
-    var args = update([0.01], arguments);
-    return this.delay.apply(this, args);
+    var __method = this, args = arguments;
+    return window.setTimeout(function() {
+      return __method.apply(this, args);
+    }, 10);
   }
 
   /**
@@ -312,10 +392,18 @@ Object.extend(Function.prototype, (function() {
    *      "hello world".capitalize(true);
    *      // -> "Hello World" (both 'H' and 'W' are capitalized)
   **/
-  function wrap(wrapper) {
+  function wrapNoConv(wrapper) {
     var __method = this;
     return function() {
-      var a = update([__method.bind(this)], arguments);
+      return wrapper.apply(this, unshiftSlice(arguments,[__method.bind(this)],0));
+    }
+  }
+
+  function wrapConv(wrapper) {
+    var __method = this;
+    return function() {
+      var a = [__method.bind(this)];
+      push.apply(a,arguments);
       return wrapper.apply(this, a);
     }
   }
@@ -356,7 +444,7 @@ Object.extend(Function.prototype, (function() {
    *
    *  The example above is quite simplistic. It's more useful to copy methodized
    *  functions to object prototypes so that new methods are immediately shared
-   *  among instances. In the Prototype library, `methodize` is used in various
+   *  among instances. In the Improved library, `methodize` is used in various
    *  places such as the DOM module, so that (for instance) you can hide an
    *  element either by calling the static version of `Element.hide` and passing in
    *  an element reference or ID, like so:
@@ -368,24 +456,55 @@ Object.extend(Function.prototype, (function() {
    *
    *      myElement.hide();
   **/
-  function methodize() {
+  function methodizeNoConv() {
     if (this._methodized) return this._methodized;
     var __method = this;
     return this._methodized = function() {
-      var a = update([this], arguments);
-      return __method.apply(null, a);
-    };
+      return __method.apply(null, unshiftSlice(arguments,[this],0));
+    }
   }
+
+  function methodizeConv() {
+    if (this._methodized) return this._methodized;
+    var __method = this;
+    return this._methodized = function() {
+      var a = [this];
+      push.apply(a,arguments);
+      return __method.apply(null, a);
+    }
+  }
+
+  function EmptyConstructor() {}
+
+  /**
+   *  Function#newInstance(args) -> Object
+   *  - args (Array): An argument array.
+   *
+   *  Returns an Object instance based on this function as a constructor
+   *
+   *  [[Function#newInstance]] create a new object and call this function
+   *  for construction. The Object is very similar to an object created
+   *  with new. This allow creating object from an argument array.
+  **/
+  function newInstance(args) {
+    EmptyConstructor.prototype = this.prototype;
+    var object = new EmptyConstructor;
+    this.apply(object,args);
+    return object;
+  }
+
+  var ieOperaAndroid = Improved.Browser.Opera || (Improved.Browser.IE && !Improved.Browser.IE9) || (Improved.Device.Android && Improved.Browser.WebKit);
 
   return {
+    functionName:        functionName,
     argumentNames:       argumentNames,
-    bind:                bind,
+    bind:                ((ieOperaAndroid) ? bindNoConv      : bindConv),
     bindAsEventListener: bindAsEventListener,
-    curry:               curry,
-    delay:               delay,
+    curry:               ((ieOperaAndroid) ? curryNoConv     : curryConv),
+    delay:               ((ieOperaAndroid) ? delayNoConv     : delayConv),
     defer:               defer,
-    wrap:                wrap,
-    methodize:           methodize
-  }
+    wrap:                ((ieOperaAndroid) ? wrapNoConv      : wrapConv),
+    methodize:           ((ieOperaAndroid) ? methodizeNoConv : methodizeConv),
+    newInstance:         newInstance
+  };
 })());
-

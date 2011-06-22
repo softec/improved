@@ -1,3 +1,27 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 /** section: Language
  * class Template
  *
@@ -122,21 +146,21 @@ var Template = Class.create({
    *
    *  Applies the template to `object`'s data, producing a formatted string
    *  with symbols replaced by `object`'s corresponding properties.
-   *  
+   *
    *  #####  Examples
-   *  
+   *
    *      var hrefTemplate = new Template('/dir/showAll?lang=#{language}&amp;categ=#{category}&amp;lv=#{levels}');
    *      var selection = {category: 'books' , language: 'en-US'};
-   *      
+   *
    *      hrefTemplate.evaluate(selection);
    *      // -> '/dir/showAll?lang=en-US&amp;categ=books&amp;lv='
-   *      
+   *
    *      hrefTemplate.evaluate({language: 'jp', levels: 3, created: '10/12/2005'});
    *      // -> '/dir/showAll?lang=jp&amp;categ=&amp;lv=3'
-   *      
+   *
    *      hrefTemplate.evaluate({});
    *      // -> '/dir/showAll?lang=&amp;categ=&amp;lv='
-   *      
+   *
    *      hrefTemplate.evaluate(null);
    *      // -> error !
   **/
@@ -152,7 +176,7 @@ var Template = Class.create({
 
       var ctx = object, expr = match[3],
           pattern = /^([^.[]+|\[((?:.*?[^\\])?)\])(\.|\[|$)/;
-          
+
       match = pattern.exec(expr);
       if (match == null) return before;
 

@@ -1,16 +1,36 @@
-/* Based on Alex Arnell's inheritance implementation. */
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 
 /** section: Language
  * class Class
  *
- *  Manages Prototype's class-based OOP system.
+ *  Manages Improved's class-based OOP system.
  *
- *  Refer to Prototype's web site for a [tutorial on classes and
- *  inheritance](http://prototypejs.org/learn/class-inheritance).
-**/
+ **/
 var Class = (function() {
-  
-  // Some versions of JScript fail to enumerate over properties, names of which 
+
+  // Some versions of JScript fail to enumerate over properties, names of which.
   // correspond to non-enumerable properties in the prototype chain
   var IS_DONTENUM_BUGGY = (function(){
     for (var p in { toString: 1 }) {
@@ -19,9 +39,10 @@ var Class = (function() {
     }
     return true;
   })();
-  
+
   /**
-   *  Class.create([superclass][, methods...]) -> Class
+   *  Class.create([classname][, superclass][, methods...]) -> Class
+   *    - classname (String): A name for better class introspection
    *    - superclass (Class): The optional superclass to inherit methods from.
    *    - methods (Object): An object whose properties will be "mixed-in" to the
    *        new class. Any number of mixins can be added; later mixins take
@@ -46,39 +67,84 @@ var Class = (function() {
    *
    *  To extend a class after it has been defined, use [[Class#addMethods]].
    *
+   *  If debug level is at call tracing, call tracing is activated for all
+   *  methods added to the class. Note: Debug related stuff are stripped out of
+   *  the compressed version.
+   *
    *  For details, see the
    *  [inheritance tutorial](http://prototypejs.org/learn/class-inheritance)
    *  on the Prototype website.
   **/
   function subclass() {};
   function create() {
-    var parent = null, properties = $A(arguments);
+    var parent = null,
+        properties = $A(arguments);
+;;; var namesp = null, klassname = null;
+
+    if (Object.isString(properties[0])) {
+;;;   klassname =
+        properties.shift();
+;;;   var i = klassname.lastIndexOf('.');
+;;;   if( i > 0 ) {
+;;;     namesp = klassname.substring(0,i);
+;;;     klassname = klassname.substring(++i);
+;;;   }
+    }
+
     if (Object.isFunction(properties[0]))
       parent = properties.shift();
 
-    function klass() {
-      this.initialize.apply(this, arguments);
-    }
+;;; var klass;
+;;; if( klassname ) {
+;;;   klass = eval('klass = function ' + klassname + '() { return arguments.callee.prototype.initialize.apply(this, arguments); }');
+;;; } else {
+;;;   klass =
+        function klass() { return arguments.callee.prototype.initialize.apply(this, arguments); }
+;;; }
 
     Object.extend(klass, Class.Methods);
+;;; if( namesp ) klass.namespace = namesp;
     klass.superclass = parent;
     klass.subclasses = [];
 
     if (parent) {
       subclass.prototype = parent.prototype;
       klass.prototype = new subclass;
-      parent.subclasses.push(klass);
+      if( Object.isArray(parent.subclasses) ) {
+        parent.subclasses.push(klass);
+      }
     }
 
     for (var i = 0, length = properties.length; i < length; i++)
       klass.addMethods(properties[i]);
 
     if (!klass.prototype.initialize)
-      klass.prototype.initialize = Prototype.emptyFunction;
+      klass.prototype.initialize = Improved.emptyFunction;
 
     klass.prototype.constructor = klass;
+
+;;; if( debug.isCallTraceEnabled() ) {
+;;;   if( klassname ) {
+;;;     debug.callTrace('Define Class '+klassname+' as',klass);
+;;;   } else {
+;;;     debug.callTrace('Define anonymous Class as',klass);
+;;;   }
+;;; }
+
     return klass;
   }
+
+;;;function debugWrapper(method, property, args) {
+;;; debug.callTrace('Call',Object.getTypeFQName(this)+'.'+property,args);
+;;; try {
+;;;   var result = method.apply(this,args);
+;;; } catch(e) {
+;;;   debug.callTrace('Throw',e.message,'from',Object.getTypeFQName(this)+'.'+property,args);
+;;;   throw(e);
+;;; }
+;;; debug.callTrace('Return',result,'from',Object.getTypeFQName(this)+'.'+property,args);
+;;; return result;
+;;;}
 
   /**
    *  Class#addMethods(methods) -> Class
@@ -160,16 +226,31 @@ var Class = (function() {
     }
 
     for (var i = 0, length = properties.length; i < length; i++) {
-      var property = properties[i], value = source[property];
-      if (ancestor && Object.isFunction(value) &&
-          value.argumentNames()[0] == "$super") {
-        var method = value;
-        value = (function(m) {
-          return function() { return ancestor[m].apply(this, arguments); };
-        })(property).wrap(method);
-
-        value.valueOf = method.valueOf.bind(method);
-        value.toString = method.toString.bind(method);
+      var property = properties[i], value, method = value = source[property];
+      if( Object.isFunction(value) ) {
+;;;     value.methodName = property;
+        if (ancestor && Object.isFunction(value) &&
+            value.argumentNames()[0] == "$super") {
+          if( property === 'initialize' && !Object.isArray(ancestor.constructor.subclasses) ) {
+            value = (function() {
+              return function() { return ancestor.constructor.apply(this, arguments); };
+            })().wrap(method);
+          } else {
+            value = (function(m) {
+              return function() { return ancestor[m].apply(this, arguments); };
+            })(property).wrap(method);
+          }
+        }
+;;;     if( debug.isCallTraceEnabled() ) {
+;;;       value = (function(method,property) {
+;;;           return function() { return debugWrapper.call(this,method,property,arguments); };
+;;;         })(value,property);
+;;;     }
+        if( method !== value ) {
+;;;       value.methodName = property;
+          value.valueOf = method.valueOf.bind(method);
+          value.toString = method.toString.bind(method);
+        }
       }
       this.prototype[property] = value;
     }

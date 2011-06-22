@@ -1,3 +1,27 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 /** section: DOM, related to: Element
  *  $(id) -> Element
  *  $(id...) -> [Element...]
@@ -15,7 +39,7 @@
  *
  *  ##### More Information
  *
- *  The [[$]] function is the cornerstone of Prototype. Not only does it
+ *  The [[$]] function is the cornerstone of Improved. Not only does it
  *  provide a handy alias for `document.getElementById`, it also lets you pass
  *  indifferently IDs (strings) or DOM node references to your functions:
  *  
@@ -37,7 +61,7 @@
  *  multiple elements, you're doing it wrong!*
  *  
  *  The function also *extends every returned element* with [[Element.extend]]
- *  so you can use Prototype's DOM extensions on it. In the following code,
+ *  so you can use Improved's DOM extensions on it. In the following code,
  *  the two lines are equivalent. However, the second one feels significantly
  *  more object-oriented:
  *  
@@ -68,7 +92,7 @@ function $(element) {
   return Element.extend(element);
 }
 
-if (Prototype.BrowserFeatures.XPath) {
+if (Improved.BrowserFeatures.XPath) {
   document._getElementsByXPath = function(expression, parentElement) {
     var results = [];
     var query = document.evaluate(expression, $(parentElement) || document,
@@ -128,7 +152,7 @@ if (!Node.ELEMENT_NODE) {
  *
  *  For more information about extended elements, check out ["How Prototype
  *  extends the DOM"](http://prototypejs.org/learn/extensions), which will walk
- *  you through the inner workings of Prototype's DOM extension mechanism.
+ *  you through the inner workings of Improved's DOM extension mechanism.
 **/
 
 /**
@@ -139,7 +163,7 @@ if (!Node.ELEMENT_NODE) {
  *
  *  Creates an HTML element with `tagName` as the tag name, optionally with the
  *  given attributes. This can be markedly more concise than working directly
- *  with the DOM methods, and takes advantage of Prototype's workarounds for
+ *  with the DOM methods, and takes advantage of Improved's workarounds for
  *  various browser issues with certain attributes:
  *
  *  ##### Example
@@ -166,41 +190,41 @@ if (!Node.ELEMENT_NODE) {
     if ('type' in attributes) return false;
     return true;
   }
-  
+
   var HAS_EXTENDED_CREATE_ELEMENT_SYNTAX = (function(){
     try {
       var el = document.createElement('<input name="x">');
       return el.tagName.toLowerCase() === 'input' && el.name === 'x';
-    } 
+    }
     catch(err) {
       return false;
     }
   })();
 
   var element = global.Element;
-      
+
   global.Element = function(tagName, attributes) {
     attributes = attributes || { };
     tagName = tagName.toLowerCase();
     var cache = Element.cache;
-    
+
     if (HAS_EXTENDED_CREATE_ELEMENT_SYNTAX && attributes.name) {
       tagName = '<' + tagName + ' name="' + attributes.name + '">';
-      delete attributes.name;      
+      delete attributes.name;
       return Element.writeAttribute(document.createElement(tagName), attributes);
     }
-    
+
     if (!cache[tagName]) cache[tagName] = Element.extend(document.createElement(tagName));
-    
-    var node = shouldUseCache(tagName, attributes) ? 
+
+    var node = shouldUseCache(tagName, attributes) ?
      cache[tagName].cloneNode(false) : document.createElement(tagName);
-    
+
     return Element.writeAttribute(node, attributes);
   };
-  
+
   Object.extend(global.Element, element || { });
   if (element) global.Element.prototype = element.prototype;
-  
+
 })(this);
 
 Element.idCounter = 1;
@@ -260,7 +284,7 @@ Element.Methods = {
    *  ##### Notes
    *  
    *  Styles applied via a CSS stylesheet are _not_ taken into consideration.
-   *  Note that this is not a Prototype limitation, it is a CSS limitation.
+   *  Note that this is not a Improved limitation, it is a CSS limitation.
    *  
    *      language: html
    *      <style>
@@ -311,7 +335,7 @@ Element.Methods = {
    *  ##### Notes
    *  
    *  [[Element.toggle]] _cannot_ display elements hidden via CSS stylesheets.
-   *  Note that this is not a Prototype limitation but a consequence of how the
+   *  Note that this is not a Improved limitation but a consequence of how the
    *  CSS `display` property works.
    *  
    *      <style>
@@ -390,7 +414,7 @@ Element.Methods = {
    *  ##### Notes
    *  
    *  [[Element.show]] _cannot_ display elements hidden via CSS stylesheets.
-   *  Note that this is not a Prototype limitation but a consequence of how the
+   *  Note that this is not a Improved limitation but a consequence of how the
    *  CSS `display` property works.
    *  
    *      <style>
@@ -568,7 +592,7 @@ Element.Methods = {
         return true;
       }
     })();
-    
+
     var LINK_ELEMENT_INNERHTML_BUGGY = (function() {
       try {
         var el = document.createElement('div');
@@ -580,9 +604,9 @@ Element.Methods = {
         return true;
       }
     })();
-    
+
     var ANY_INNERHTML_BUGGY = SELECT_ELEMENT_INNERHTML_BUGGY ||
-     TABLE_ELEMENT_INNERHTML_BUGGY || LINK_ELEMENT_INNERHTML_BUGGY;    
+     TABLE_ELEMENT_INNERHTML_BUGGY || LINK_ELEMENT_INNERHTML_BUGGY;
 
     var SCRIPT_ELEMENT_REJECTS_TEXTNODE_APPENDING = (function () {
       var s = document.createElement("script"),
@@ -597,19 +621,19 @@ Element.Methods = {
       s = null;
       return isBuggy;
     })();
-    
+
 
     function update(element, content) {
       element = $(element);
       var purgeElement = Element._purgeElement;
-      
+
       // Purge the element's existing contents of all storage keys and
       // event listeners, since said content will be replaced no matter
       // what.
       var descendants = element.getElementsByTagName('*'),
        i = descendants.length;
       while (i--) purgeElement(descendants[i]);
-      
+
       if (content && content.toElement)
         content = content.toElement();
 
@@ -644,7 +668,7 @@ Element.Methods = {
             element.removeChild(element.firstChild);
           }
           var nodes = Element._getContentFromAnonymousElement(tagName, content.stripScripts(), true);
-          nodes.each(function(node) { element.appendChild(node) });          
+          nodes.each(function(node) { element.appendChild(node) });
         }
         else {
           element.innerHTML = content.stripScripts();
@@ -936,7 +960,7 @@ Element.Methods = {
     element = $(element);
     var result = '<' + element.tagName.toLowerCase();
     $H({'id': 'id', 'className': 'class'}).each(function(pair) {
-      var property = pair.first(), 
+      var property = pair.first(),
           attribute = pair.last(),
           value = (element[property] || '').toString();
       if (value) result += ' ' + attribute + '=' + value.inspect(true);
@@ -961,7 +985,7 @@ Element.Methods = {
    *  [[Element.recursivelyCollect]] should seldom be needed. However, if you
    *  are after something out of the ordinary, it is the way to go.
    *  
-   *  Note that all of Prototype's DOM traversal methods ignore text nodes and
+   *  Note that all of Improved's DOM traversal methods ignore text nodes and
    *  return element nodes only.
    *  
    *  ##### Examples
@@ -987,14 +1011,14 @@ Element.Methods = {
     element = $(element);
     maximumLength = maximumLength || -1;
     var elements = [];
-    
+
     while (element = element[property]) {
       if (element.nodeType == 1)
         elements.push(Element.extend(element));
-      if (elements.length == maximumLength) 
+      if (elements.length == maximumLength)
         break;
     }
-    
+
     return elements;
   },
 
@@ -1039,7 +1063,7 @@ Element.Methods = {
    *
    *  Collects all of the element's descendants (its children, their children,
    *  etc.) and returns them as an array of extended elements. As with all of
-   *  Prototype's DOM traversal methods, only [[Element]]s are returned, other
+   *  Improved's DOM traversal methods, only [[Element]]s are returned, other
    *  nodes (text nodes, etc.) are skipped.
   **/
   descendants: function(element) {
@@ -1114,7 +1138,7 @@ Element.Methods = {
    *  document (e.g. an index of 0 refers to the lowest sibling i.e., the one
    *  closest to `element`).
    *  
-   *  Note that all of Prototype's DOM traversal methods ignore text nodes and
+   *  Note that all of Improved's DOM traversal methods ignore text nodes and
    *  return element nodes only.
    *  
    *  ##### Examples
@@ -1153,7 +1177,7 @@ Element.Methods = {
    *  The returned [[Array]] reflects the siblings order in the document
    *  (e.g. an index of 0 refers to the sibling right below `element`).
    *  
-   *  Note that all of Prototype's DOM traversal methods ignore text nodes and
+   *  Note that all of Improved's DOM traversal methods ignore text nodes and
    *  return element nodes only.
    *  
    *  ##### Examples
@@ -1190,7 +1214,7 @@ Element.Methods = {
    *  The returned [[Array]] reflects the siblings' order in the document (e.g.
    *  an index of 0 refers to `element`'s topmost sibling).
    *  
-   *  Note that all of Prototype's DOM traversal methods ignore text nodes and
+   *  Note that all of Improved's DOM traversal methods ignore text nodes and
    *  return element nodes only.
    *  
    *  ##### Examples
@@ -1248,7 +1272,7 @@ Element.Methods = {
   match: function(element, selector) {
     element = $(element);
     if (Object.isString(selector))
-      return Prototype.Selector.match(element, selector);
+      return Improved.Selector.match(element, selector);
     return selector.match(element);
   },
 
@@ -1264,7 +1288,7 @@ Element.Methods = {
    *
    *  ##### More information
    *
-   *  The [[Element.up]] method is part of Prototype's ultimate DOM traversal
+   *  The [[Element.up]] method is part of Improved's ultimate DOM traversal
    *  toolkit (check out [[Element.down]], [[Element.next]] and
    *  [[Element.previous]] for some more Prototypish niceness). It allows 
    *  precise index-based and/or CSS rule-based selection of any of `element`'s
@@ -1358,7 +1382,7 @@ Element.Methods = {
     if (arguments.length == 1) return $(element.parentNode);
     var ancestors = Element.ancestors(element);
     return Object.isNumber(expression) ? ancestors[expression] :
-      Prototype.Selector.find(ancestors, expression, index);
+      Improved.Selector.find(ancestors, expression, index);
   },
 
   /**
@@ -1373,7 +1397,7 @@ Element.Methods = {
    *
    *  ##### More information
    *
-   *  The [[Element.down]] method is part of Prototype's ultimate DOM traversal
+   *  The [[Element.down]] method is part of Improved's ultimate DOM traversal
    *  toolkit (check out [[Element.up]], [[Element.next]] and
    *  [[Element.previous]] for some more Prototypish niceness). It allows
    *  precise index-based and/or CSS rule-based selection of any of the 
@@ -1477,7 +1501,7 @@ Element.Methods = {
    *
    *  ##### More information
    *
-   *  The [[Element.previous]] method is part of Prototype's ultimate DOM
+   *  The [[Element.previous]] method is part of Improved's ultimate DOM
    *  traversal toolkit (check out [[Element.up]], [[Element.down]] and
    *  [[Element.next]] for some more Prototypish niceness). It allows precise
    *  index-based and/or CSS expression-based selection of any of `element`'s
@@ -1568,9 +1592,9 @@ Element.Methods = {
     element = $(element);
     if (Object.isNumber(expression)) index = expression, expression = false;
     if (!Object.isNumber(index)) index = 0;
-    
+
     if (expression) {
-      return Prototype.Selector.find(element.previousSiblings(), expression, index);
+      return Improved.Selector.find(element.previousSiblings(), expression, index);
     } else {
       return element.recursivelyCollect("previousSibling", index + 1)[index];
     }
@@ -1588,7 +1612,7 @@ Element.Methods = {
    *
    *  ##### More information
    *
-   *  The [[Element.next]] method is part of Prototype's ultimate DOM traversal
+   *  The [[Element.next]] method is part of Improved's ultimate DOM traversal
    *  toolkit (check out [[Element.up]], [[Element.down]] and
    *  [[Element.previous]] for some more Prototypish niceness). It allows
    *  precise index-based and/or CSS expression-based selection of any of
@@ -1679,9 +1703,9 @@ Element.Methods = {
     element = $(element);
     if (Object.isNumber(expression)) index = expression, expression = false;
     if (!Object.isNumber(index)) index = 0;
-    
+
     if (expression) {
-      return Prototype.Selector.find(element.nextSiblings(), expression, index);
+      return Improved.Selector.find(element.nextSiblings(), expression, index);
     } else {
       var maximumLength = Object.isNumber(index) ? index + 1 : 1;
       return element.recursivelyCollect("nextSibling", index + 1)[index];
@@ -1736,7 +1760,7 @@ Element.Methods = {
    *      var nodes2 = someUL.select('li');
    *  
    *  In the first example, you must explicitly convert the result set to an
-   *  [[Array]] (so that Prototype's [[Enumerable]] methods can be used) and
+   *  [[Array]] (so that Improved's [[Enumerable]] methods can be used) and
    *  must manually call [[Element.extend]] on each node (so that custom 
    *  instance methods can be used on the nodes). [[Element.select]] takes care 
    *  of both concerns on its own.
@@ -1747,7 +1771,7 @@ Element.Methods = {
   select: function(element) {
     element = $(element);
     var expressions = Array.prototype.slice.call(arguments, 1).join(', ');
-    return Prototype.Selector.select(expressions, element);
+    return Improved.Selector.select(expressions, element);
   },
 
   /**
@@ -1783,7 +1807,7 @@ Element.Methods = {
   adjacent: function(element) {
     element = $(element);
     var expressions = Array.prototype.slice.call(arguments, 1).join(', ');
-    return Prototype.Selector.select(expressions, element.parentNode).without(element);
+    return Improved.Selector.select(expressions, element.parentNode).without(element);
   },
 
   /**
@@ -1840,7 +1864,7 @@ Element.Methods = {
    *  ##### Examples
    *  
    *      language: html
-   *      <a id="tag" href="/tags/prototype" rel="tag" title="view related bookmarks." my_widget="some info.">Prototype</a>
+   *      <a id="tag" href="/tags/prototype" rel="tag" title="view related bookmarks." my_widget="some info.">Improved</a>
    *
    *  Then:
    *
@@ -1855,7 +1879,7 @@ Element.Methods = {
   **/
   readAttribute: function(element, name) {
     element = $(element);
-    if (Prototype.Browser.IE) {
+    if (Improved.Browser.IE) {
       var t = Element._attributeTranslations.read;
       if (t.values[name]) return t.values[name](element, name);
       if (t.names[name]) name = t.names[name];
@@ -1961,7 +1985,7 @@ Element.Methods = {
    *  an array of classnames, you can use `$w(element.className)`.
   **/
   classNames: function(element) {
-    return new Element.ClassNames(element);
+    return $w(element.className);
   },
 
   /**
@@ -2381,7 +2405,7 @@ Element.Methods = {
       element.style.position = 'relative';
       // Opera returns the offset relative to the positioning context, when an
       // element is position relative but top and left have not been defined
-      if (Prototype.Browser.Opera) {
+      if (Improved.Browser.Opera) {
         element.style.top = 0;
         element.style.left = 0;
       }
@@ -2599,7 +2623,7 @@ Element.Methods = {
 
     // find coordinate system to use
     element = $(element);
-    
+
     // delta [0,0] will do fine with position: fixed elements,
     // position:absolute needs offsetParent deltas
     if (Element.getStyle(element, 'position') == 'absolute') {
@@ -2619,6 +2643,25 @@ Element.Methods = {
     if (options.setWidth)  element.style.width = source.offsetWidth + 'px';
     if (options.setHeight) element.style.height = source.offsetHeight + 'px';
     return element;
+  },
+
+  text: function(element, text) {
+    if (!(element = $(element))) return undefined;
+
+    if ( typeof text !== "object" && text !== undefined ) {
+      $A(element.childNodes).each(Element.remove);
+      element.appendChild((element.ownerDocument || document).createTextNode( text ));
+      return element;
+    }
+
+    return element.textContent || element.innerText || '';
+  },
+
+  addVMLBehavior: function(element) {
+    if( Improved.BrowserFeatures.VML ) {
+      element.style['behavior'] = 'url(#default#VML)';
+    }
+    return element;
   }
 };
 
@@ -2636,7 +2679,7 @@ Object.extend(Element.Methods, {
    *  entry in the array is the topmost child of `element`, the next is the
    *  child after that, etc.
    *
-   *  Like all of Prototype's DOM traversal methods, [[Element.childElements]]
+   *  Like all of Improved's DOM traversal methods, [[Element.childElements]]
    *  ignores text nodes and returns element nodes only.
    *
    *  ##### Example
@@ -2676,7 +2719,7 @@ Element._attributeTranslations = {
   }
 };
 
-if (Prototype.Browser.Opera) {
+if (Improved.Browser.Opera) {
   Element.Methods.getStyle = Element.Methods.getStyle.wrap(
     function(proceed, element, style) {
       switch (style) {
@@ -2717,7 +2760,7 @@ if (Prototype.Browser.Opera) {
   );
 }
 
-else if (Prototype.Browser.IE) {
+else if (Improved.Browser.IE) {
   Element.Methods.getStyle = function(element, style) {
     element = $(element);
     style = (style == 'float' || style == 'cssFloat') ? 'styleFloat' : style.camelize();
@@ -2761,8 +2804,8 @@ else if (Prototype.Browser.IE) {
 
   Element._attributeTranslations = (function(){
 
-    var classProp = 'className', 
-        forProp = 'for', 
+    var classProp = 'className',
+        forProp = 'for',
         el = document.createElement('div');
 
     // try "className" first (IE <8)
@@ -2809,7 +2852,7 @@ else if (Prototype.Browser.IE) {
           _getEv: (function(){
 
             var el = document.createElement('div'), f;
-            el.onclick = Prototype.emptyFunction;
+            el.onclick = Improved.emptyFunction;
             var value = el.getAttribute('onclick');
 
             // IE<8
@@ -2907,7 +2950,7 @@ else if (Prototype.Browser.IE) {
 
   // We optimize Element#down for IE so that it does not call
   // Element#descendants (and therefore extend all nodes).
-  if (Prototype.BrowserFeatures.ElementExtensions) {
+  if (Improved.BrowserFeatures.ElementExtensions) {
     (function() {
       function _descendants(element) {
         var nodes = element.getElementsByTagName('*'), results = [];
@@ -2928,7 +2971,7 @@ else if (Prototype.Browser.IE) {
 
 }
 
-else if (Prototype.Browser.Gecko && /rv:1\.8\.0/.test(navigator.userAgent)) {
+else if (Improved.Browser.Gecko && /rv:1\.8\.0/.test(navigator.userAgent)) {
   Element.Methods.setOpacity = function(element, value) {
     element = $(element);
     element.style.opacity = (value == 1) ? 0.999999 :
@@ -2937,7 +2980,7 @@ else if (Prototype.Browser.Gecko && /rv:1\.8\.0/.test(navigator.userAgent)) {
   };
 }
 
-else if (Prototype.Browser.WebKit) {
+else if (Improved.Browser.WebKit) {
   Element.Methods.setOpacity = function(element, value) {
     element = $(element);
     element.style.opacity = (value == 1 || value === '') ? '' :
@@ -2993,16 +3036,16 @@ Element._returnOffset = function(l, t) {
 };
 
 Element._getContentFromAnonymousElement = function(tagName, html, force) {
-  var div = new Element('div'), 
+  var div = new Element('div'),
       t = Element._insertionTranslations.tags[tagName];
-  
+
   var workaround = false;
   if (t) workaround = true;
   else if (force) {
     workaround = true;
     t = ['', '', 0];
   }
-      
+
   if (workaround) {
     // Adding a text node to the beginning of the string (then removing it)
     // fixes an issue in Internet Explorer. See Element#update above.
@@ -3060,7 +3103,7 @@ Element.Methods.Simulated = {
    *  ##### Example
    *  
    *      language: html
-   *      <a id="link" href="http://prototypejs.org">Prototype</a>
+   *      <a id="link" href="http://prototypejs.org">Improved</a>
    *
    *  Then:
    *
@@ -3080,10 +3123,10 @@ Object.extend(Element, Element.Methods);
 
 (function(div) {
 
-  if (!Prototype.BrowserFeatures.ElementExtensions && div['__proto__']) {
+  if (!Improved.BrowserFeatures.ElementExtensions && div['__proto__']) {
     window.HTMLElement = { };
     window.HTMLElement.prototype = div['__proto__'];
-    Prototype.BrowserFeatures.ElementExtensions = true;
+    Improved.BrowserFeatures.ElementExtensions = true;
   }
 
   div = null;
@@ -3093,12 +3136,12 @@ Object.extend(Element, Element.Methods);
 /**
  *  Element.extend(element) -> Element
  *
- *  Extends the given element instance with all of the Prototype goodness and
+ *  Extends the given element instance with all of the Improved goodness and
  *  syntactic sugar, as well as any extensions added via [[Element.addMethods]].
  *  (If the element instance was already extended, this is a no-op.)
  *
  *  You only need to use [[Element.extend]] on element instances you've acquired
- *  directly from the DOM; **all** Prototype methods that return element
+ *  directly from the DOM; **all** Improved methods that return element
  *  instances (such as [[$]], [[Element.down]], etc.) will pre-extend the
  *  element before returning it.
  *
@@ -3142,13 +3185,13 @@ Element.extend = (function() {
 
   var HTMLOBJECTELEMENT_PROTOTYPE_BUGGY = checkDeficiency('object');
 
-  if (Prototype.BrowserFeatures.SpecificElementExtensions) {
+  if (Improved.BrowserFeatures.SpecificElementExtensions) {
     // IE8 has a bug with `HTMLObjectElement` and `HTMLAppletElement` objects
     // not being able to "inherit" from `Element.prototype`
     // or a specific prototype - `HTMLObjectElement.prototype`, `HTMLAppletElement.prototype`
     if (HTMLOBJECTELEMENT_PROTOTYPE_BUGGY) {
       return function(element) {
-        if (element && typeof element._extendedByPrototype == 'undefined') {
+        if (element && typeof element._extendedByImproved == 'undefined') {
           var t = element.tagName;
           if (t && (/^(?:object|applet|embed)$/i.test(t))) {
             extendElementWith(element, Element.Methods);
@@ -3159,7 +3202,7 @@ Element.extend = (function() {
         return element;
       }
     }
-    return Prototype.K;
+    return Improved.K;
   }
 
   var Methods = { }, ByTag = Element.Methods.ByTag;
@@ -3167,7 +3210,7 @@ Element.extend = (function() {
   var extend = Object.extend(function(element) {
     // need to use actual `typeof` operator
     // to prevent errors in some environments (when accessing node expandos)
-    if (!element || typeof element._extendedByPrototype != 'undefined' ||
+    if (!element || typeof element._extendedByImproved != 'undefined' ||
         element.nodeType != 1 || element == window) return element;
 
     var methods = Object.clone(Methods),
@@ -3178,13 +3221,13 @@ Element.extend = (function() {
 
     extendElementWith(element, methods);
 
-    element._extendedByPrototype = Prototype.emptyFunction;
+    element._extendedByImproved = Improved.emptyFunction;
     return element;
 
   }, {
     refresh: function() {
       // extend methods for all tags (Safari doesn't need this)
-      if (!Prototype.BrowserFeatures.ElementExtensions) {
+      if (!Improved.BrowserFeatures.ElementExtensions) {
         Object.extend(Methods, Element.Methods);
         Object.extend(Methods, Element.Methods.Simulated);
       }
@@ -3281,8 +3324,8 @@ else {
  *
  *  Note: [[Element.addMethods]] has built-in security which prevents you from
  *  overriding native element methods or properties (like `getAttribute` or
- *  `innerHTML`), but nothing prevents you from overriding one of Prototype's
- *  methods. Prototype uses a lot of its methods internally; overriding its
+ *  `innerHTML`), but nothing prevents you from overriding one of Improved's
+ *  methods. Improved uses a lot of its methods internally; overriding its
  *  methods is best avoided or at least done only with great care.
  *
  *  ##### Example 1
@@ -3329,7 +3372,7 @@ else {
  *  failure handler (since we didn't supply one).
 **/
 Element.addMethods = function(methods) {
-  var F = Prototype.BrowserFeatures, T = Element.Methods.ByTag;
+  var F = Improved.BrowserFeatures, T = Element.Methods.ByTag;
 
   if (!methods) {
     Object.extend(Form, Form.Methods);
@@ -3393,23 +3436,23 @@ Element.addMethods = function(methods) {
 
     var element = document.createElement(tagName),
         proto = element['__proto__'] || element.constructor.prototype;
-        
+
     element = null;
     return proto;
   }
 
-  var elementPrototype = window.HTMLElement ? HTMLElement.prototype :
+  var elementImproved = window.HTMLElement ? HTMLElement.prototype :
    Element.prototype;
 
   if (F.ElementExtensions) {
-    copy(Element.Methods, elementPrototype);
-    copy(Element.Methods.Simulated, elementPrototype, true);
+    copy(Element.Methods, elementImproved);
+    copy(Element.Methods.Simulated, elementImproved, true);
   }
 
   if (F.SpecificElementExtensions) {
     for (var tag in Element.Methods.ByTag) {
       var klass = findDOMClass(tag);
-      if (Object.isUndefined(klass)) continue;
+      if (Object.isUndefined(klass.prototype)) continue;
       copy(T[tag], klass.prototype);
     }
   }
@@ -3474,7 +3517,7 @@ document.viewport = {
 };
 
 (function(viewport) {
-  var B = Prototype.Browser, doc = document, element, property = {};
+  var B = Improved.Browser, doc = document, element, property = {};
 
   function getRootElement() {
     // Older versions of Safari.
@@ -3592,7 +3635,7 @@ Element.addMethods({
    *  Returns a duplicate of `element`.
    *
    *  A wrapper around DOM Level 2 `Node#cloneNode`, [[Element.clone]] cleans up
-   *  any expando properties defined by Prototype.
+   *  any expando properties defined by Improved.
   **/
   clone: function(element, deep) {
     if (!(element = $(element))) return;
@@ -3616,9 +3659,9 @@ Element.addMethods({
    *  To be used just before removing an element from the page.
   **/
   purge: function(element) {
-    if (!(element = $(element))) return;    
+    if (!(element = $(element))) return;
     var purgeElement = Element._purgeElement;
-    
+
     purgeElement(element);
 
     var descendants = element.getElementsByTagName('*'),

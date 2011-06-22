@@ -1,9 +1,33 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 /** section: Language
  * class String
  *
  *  Extensions to the built-in `String` class.
  *
- *  Prototype enhances the [[String]] object with a series of useful methods for
+ *  Improved enhances the [[String]] object with a series of useful methods for
  *  ranging from the trivial to the complex. Tired of stripping trailing
  *  whitespace? Try [[String#strip]]. Want to replace `replace`? Have a look at
  *  [[String#sub]] and [[String#gsub]]. Need to parse a query string? We have
@@ -18,6 +42,7 @@ Object.extend(String, {
   interpret: function(value) {
     return value == null ? '' : String(value);
   },
+
   specialChar: {
     '\b': '\\b',
     '\t': '\\t',
@@ -26,6 +51,7 @@ Object.extend(String, {
     '\r': '\\r',
     '\\': '\\\\'
   }
+
 });
 
 Object.extend(String.prototype, (function() {
@@ -296,7 +322,7 @@ Object.extend(String.prototype, (function() {
    *  not sufficiently robust to prevent hack attacks.
   **/
   function stripScripts() {
-    return this.replace(new RegExp(Prototype.ScriptFragment, 'img'), '');
+    return this.replace(new RegExp(Improved.ScriptFragment, 'img'), '');
   }
 
   /**
@@ -330,9 +356,9 @@ Object.extend(String.prototype, (function() {
    *      // -> [4, undefined] (and displays 'hello world!' in the alert dialog)
   **/
   function extractScripts() {
-    var matchAll = new RegExp(Prototype.ScriptFragment, 'img'),
-        matchOne = new RegExp(Prototype.ScriptFragment, 'im');
-    return (this.match(matchAll) || []).map(function(scriptTag) {
+    var matchAll = new RegExp(Improved.ScriptFragment, 'img'),
+        matchOne = new RegExp(Improved.ScriptFragment, 'im');
+    return (this.match(matchAll) || []).collect(function(scriptTag) {
       return (scriptTag.match(matchOne) || ['', ''])[1];
     });
   }
@@ -386,7 +412,7 @@ Object.extend(String.prototype, (function() {
    *  an array containing the value returned by each script.
   **/
   function evalScripts() {
-    return this.extractScripts().map(function(script) { return eval(script) });
+    return this.extractScripts().collect(function(script) { return eval(script) });
   }
 
   /** related to: String#unescapeHTML
@@ -474,7 +500,7 @@ Object.extend(String.prototype, (function() {
       if ((pair = pair.split('='))[0]) {
         var key = decodeURIComponent(pair.shift()),
             value = pair.length > 1 ? pair.join('=') : pair[0];
-            
+
         if (value != undefined) value = decodeURIComponent(value);
 
         if (key in hash) {
@@ -546,7 +572,7 @@ Object.extend(String.prototype, (function() {
    *  Converts a string separated by dashes into a camelCase equivalent. For
    *  instance, `'foo-bar'` would be converted to `'fooBar'`.
    *  
-   *  Prototype uses this internally for translating CSS properties into their
+   *  Improved uses this internally for translating CSS properties into their
    *  DOM `style` property equivalents.
    *
    *  ##### Examples
@@ -659,7 +685,7 @@ Object.extend(String.prototype, (function() {
   }
 
   /**
-   *  String#unfilterJSON([filter = Prototype.JSONFilter]) -> String
+   *  String#unfilterJSON([filter = Improved.JSONFilter]) -> String
    *
    *  Strips comment delimiters around Ajax JSON or JavaScript responses.
    *  This security method is called internally.
@@ -670,7 +696,7 @@ Object.extend(String.prototype, (function() {
    *      // -> '{"name": "Violet", "occupation": "character", "age": 25}'
   **/
   function unfilterJSON(filter) {
-    return this.replace(filter || Prototype.JSONFilter, '$1');
+    return this.replace(filter || Improved.JSONFilter, '$1');
   }
 
   /**
@@ -732,7 +758,7 @@ Object.extend(String.prototype, (function() {
    *  externals sources to prevent XSS attacks.
    *  
    *  As [[String#evalJSON]] internally calls [[String#unfilterJSON]], optional
-   *  security comment delimiters (defined in [[Prototype.JSONFilter]]) are
+   *  security comment delimiters (defined in [[Improved.JSONFilter]]) are
    *  automatically removed.
   **/
   function evalJSON(sanitize) {
@@ -748,7 +774,7 @@ Object.extend(String.prototype, (function() {
     } catch (e) { }
     throw new SyntaxError('Badly formed JSON string: ' + this.inspect());
   }
-  
+
   function parseJSON() {
     var json = this.unfilterJSON();
     return JSON.parse(json);
@@ -761,9 +787,9 @@ Object.extend(String.prototype, (function() {
    *  
    *  ##### Example
    *  
-   *      'Prototype framework'.include('frame');
+   *      'Improved framework'.include('frame');
    *      //-> true
-   *      'Prototype framework'.include('frameset');
+   *      'Improved framework'.include('frameset');
    *      //-> false
   **/
   function include(pattern) {
@@ -777,7 +803,7 @@ Object.extend(String.prototype, (function() {
    *  
    *  ##### Example
    *  
-   *      'Prototype JavaScript'.startsWith('Pro');
+   *      'Improved JavaScript'.startsWith('Pro');
    *      //-> true
   **/
   function startsWith(pattern) {

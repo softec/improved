@@ -120,7 +120,7 @@ if (!document.getElementsByClassName) document.getElementsByClassName = function
     return name.blank() ? null : "[contains(concat(' ', @class, ' '), ' " + name + " ')]";
   }
 
-  instanceMethods.getElementsByClassName = Prototype.BrowserFeatures.XPath ?
+  instanceMethods.getElementsByClassName = Improved.BrowserFeatures.XPath ?
   function(element, className) {
     className = className.toString().strip();
     var cond = /\s/.test(className) ? $w(className).map(iter).join('') : iter(className);
@@ -212,7 +212,7 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
      *  selector.
     **/
     findElements: function(rootElement) {
-      return Prototype.Selector.select(this.expression, rootElement);
+      return Improved.Selector.select(this.expression, rootElement);
     },
   
     /** deprecated
@@ -221,7 +221,7 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
      *  Tests whether a `element` matches the instance's CSS selector.
     **/
     match: function(element) {
-      return Prototype.Selector.match(element, this.expression);
+      return Improved.Selector.match(element, this.expression);
     },
   
     toString: function() {
@@ -242,7 +242,7 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
      *  The only nodes returned will be those that match the given CSS selector.
     **/
     matchElements: function(elements, expression) {
-      var match = Prototype.Selector.match,
+      var match = Improved.Selector.match,
           results = [];
           
       for (var i = 0, length = elements.length; i < length; i++) {
@@ -269,7 +269,7 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
       // Match each element individually, since Sizzle.matches does not preserve order
       for (var i = 0, length = elements.length; i < length; i++) {
         element = elements[i];
-        if (Prototype.Selector.match(element, expression) && index === matchIndex++) {
+        if (Improved.Selector.match(element, expression) && index === matchIndex++) {
           return Element.extend(element);
         }
       }
@@ -283,7 +283,7 @@ Object.extend(Element.ClassNames.prototype, Enumerable);
     **/
     findChildElements: function(element, expressions) {
       var selector = expressions.toArray().join(', ');
-      return Prototype.Selector.select(selector, element || document);
+      return Improved.Selector.select(selector, element || document);
     }
   });
 })();

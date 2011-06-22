@@ -1,11 +1,35 @@
-/** section: DOM, related to: Prototype.Selector
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
+/** section: DOM, related to: Improved.Selector
  *  $$(cssRule...) -> [Element...]
  *  
  *  Takes an arbitrary number of CSS selectors (strings) and returns a document-order
  *  array of extended DOM elements that match any of them.
  *  
  *  Sometimes the usual tools from your DOM arsenal -- `document.getElementById` encapsulated
- *  by [[$]], `getElementsByTagName` and even Prototype's very own `getElementsByClassName`
+ *  by [[$]], `getElementsByTagName` and even Improved's very own `getElementsByClassName`
  *  extensions -- just aren't enough to quickly find elements or collections of elements.
  *  If you know the DOM tree structure, you can simply resort to CSS selectors to get
  *  the job done.
@@ -85,20 +109,20 @@
 **/
 window.$$ = function() {
   var expression = $A(arguments).join(', ');
-  return Prototype.Selector.select(expression, document);
+  return Improved.Selector.select(expression, document);
 };
 
 /**
- * Prototype.Selector
+ * Improved.Selector
  *
  * A namespace that acts as a wrapper around
  * the choosen selector engine (Sizzle by default).
  *
 **/
-Prototype.Selector = (function() {
-  
+Improved.Selector = (function() {
+
   /**
-   *  Prototype.Selector.select(expression[, root = document]) -> [Element...]
+   *  Improved.Selector.select(expression[, root = document]) -> [Element...]
    *  - expression (String): A CSS selector.
    *  - root (Element | document): A "scope" to search within. All results will
    *    be descendants of this node.
@@ -107,22 +131,22 @@ Prototype.Selector = (function() {
    *  array of extended [[Element]] objects.
   **/
   function select() {
-    throw new Error('Method "Prototype.Selector.select" must be defined.');
+    throw new Error('Method "Improved.Selector.select" must be defined.');
   }
 
   /**
-   *  Prototype.Selector.match(element, expression) -> Boolean
+   *  Improved.Selector.match(element, expression) -> Boolean
    *  - element (Element): a DOM element.
    *  - expression (String): A CSS selector.
    *
    *  Tests whether `element` matches the CSS selector.
   **/
   function match() {
-    throw new Error('Method "Prototype.Selector.match" must be defined.');
+    throw new Error('Method "Improved.Selector.match" must be defined.');
   }
 
   /**
-   *  Prototype.Selector.find(elements, expression[, index = 0]) -> Element
+   *  Improved.Selector.find(elements, expression[, index = 0]) -> Element
    *  - elements (Enumerable): a collection of DOM elements.
    *  - expression (String): A CSS selector.
    *  - index: Numeric index of the match to return, defaults to 0.
@@ -133,7 +157,7 @@ Prototype.Selector = (function() {
   **/
   function find(elements, expression, index) {
     index = index || 0;
-    var match = Prototype.Selector.match, length = elements.length, matchIndex = 0, i;
+    var match = Improved.Selector.match, length = elements.length, matchIndex = 0, i;
 
     for (i = 0; i < length; i++) {
       if (match(elements[i], expression) && index == matchIndex++) {
@@ -141,9 +165,9 @@ Prototype.Selector = (function() {
       }
     }
   }
-  
+
   /**
-   *  Prototype.Selector.extendElements(elements) -> Enumerable
+   *  Improved.Selector.extendElements(elements) -> Enumerable
    *  - elements (Enumerable): a collection of DOM elements.
    *
    *  If necessary, extends the elements contained in `elements`
@@ -156,13 +180,13 @@ Prototype.Selector = (function() {
     }
     return elements;
   }
-  
+
   /** alias of: Element.extend
-   *  Prototype.Selector.extendElement(element) -> Element
+   *  Improved.Selector.extendElement(element) -> Element
   **/
-  
-  var K = Prototype.K;
-  
+
+  var K = Improved.K;
+
   return {
     select: select,
     match: match,

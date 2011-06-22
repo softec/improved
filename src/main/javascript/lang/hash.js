@@ -1,3 +1,27 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 /** section: Language, related to: Hash
  *  $H([obj]) -> Hash
  *  
@@ -285,7 +309,6 @@ var Hash = Class.create(Enumerable, (function() {
     });
   }
 
-  // Private. No PDoc necessary.
   function toQueryPair(key, value) {
     if (Object.isUndefined(value)) return key;
     return key + '=' + encodeURIComponent(String.interpret(value));
@@ -333,10 +356,10 @@ var Hash = Class.create(Enumerable, (function() {
   function toQueryString() {
     return this.inject([], function(results, pair) {
       var key = encodeURIComponent(pair.key), values = pair.value;
-      
+
       if (values && typeof values == 'object') {
         if (Object.isArray(values)) {
-          // We used to use `Array#map` here to get the query pair for each
+          // We used to use `Array#collect` here to get the query pair for each
           // item in the array, but that caused test regressions once we
           // added the sparse array behavior for array iterator methods.
           // Changed to an ordinary `for` loop so that we can handle
@@ -344,7 +367,7 @@ var Hash = Class.create(Enumerable, (function() {
           var queryValues = [];
           for (var i = 0, len = values.length, value; i < len; i++) {
             value = values[i];
-            queryValues.push(toQueryPair(key, value));            
+            queryValues.push(toQueryPair(key, value));
           }
           return results.concat(queryValues);
         }
@@ -359,8 +382,8 @@ var Hash = Class.create(Enumerable, (function() {
    *  Returns the debug-oriented string representation of the Hash.
   **/
   function inspect() {
-    return '#<Hash:{' + this.map(function(pair) {
-      return pair.map(Object.inspect).join(': ');
+    return '#<Hash:{' + this.collect(function(pair) {
+      return pair.collect(Object.inspect).join(': ');
     }).join(', ') + '}>';
   }
 

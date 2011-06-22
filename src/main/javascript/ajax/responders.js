@@ -1,9 +1,33 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 /** section: Ajax
  * Ajax.Responders
  *  includes Enumerable
  *
  *  A repository of global listeners notified about every step of
- *  Prototype-based Ajax requests.
+ *  Improved-based Ajax requests.
  *
  *  Sometimes, you need to provide generic behaviors over all Ajax operations
  *  happening on the page (through [[Ajax.Request]], [[Ajax.Updater]] or
@@ -14,13 +38,13 @@
  *  factor out exception handling as well, logging those somewhere on the page
  *  in a custom fashion. The possibilities are myriad.
  *
- *  To achieve this, Prototype provides `Ajax.Responders`, which lets you
+ *  To achieve this, Improved provides `Ajax.Responders`, which lets you
  *  register (and, if you wish, unregister later) _responders_, which are
  *  objects with specially-named methods. These names come from a set of
  *  general callbacks corresponding to different points in time (or outcomes)
  *  of an Ajax request's life cycle.
  *
- *  For instance, Prototype automatically registers a responder that maintains
+ *  For instance, Improved automatically registers a responder that maintains
  *  a nifty variable: [[Ajax.activeRequestCount]]. This represents, at a given
  *  time, the number of currently active Ajax requests &mdash; by monitoring their
  *  `onCreate` and `onComplete` events. The code for this is fairly simple:

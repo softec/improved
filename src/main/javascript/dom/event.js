@@ -1,9 +1,33 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 (function() {
 
   /** section: DOM
    * class Event
    *
-   *  The namespace for Prototype's event system.
+   *  The namespace for Improved's event system.
    *
    *  ##### Events: a fine mess
    *
@@ -17,9 +41,9 @@
    *  Safari). Also, MSIE has a tendency to leak memory when it comes to
    *  discarding event handlers.
    *
-   *  ##### Prototype to the rescue
+   *  ##### Improved to the rescue
    *
-   *  Of course, Prototype smooths it over so well you'll forget these
+   *  Of course, Improved smooths it over so well you'll forget these
    *  troubles even exist. Enter the [[Event]] namespace. It is replete with
    *  methods that help to normalize the information reported by events across
    *  browsers.
@@ -59,7 +83,7 @@
    *  These methods are added to the event object through [[Event.extend]],
    *  in the same way that `Element` methods are added to DOM nodes through 
    *  [[Element.extend]]. Events are extended automatically when handlers are 
-   *  registered with Prototype's [[Event.observe]] method; if you're using a 
+   *  registered with Improved's [[Event.observe]] method; if you're using a 
    *  different method of event registration, for whatever reason,you'll need to
    *  extend these events manually with [[Event.extend]].
   **/
@@ -85,15 +109,15 @@
   var docEl = document.documentElement;
   var MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED = 'onmouseenter' in docEl
     && 'onmouseleave' in docEl;
-    
-    
+
+
   // We need to support three different event "modes":
   //  1. browsers with only DOM L2 Events (WebKit, FireFox);
   //  2. browsers with only IE's legacy events system (IE 6-8);
   //  3. browsers with _both_ systems (IE 9 and arguably Opera).
   //
   // Groups 1 and 2 are easy; group three is trickier.
-  
+
   var isIELegacyEvent = function(event) { return false; };
 
   if (window.attachEvent) {
@@ -111,20 +135,20 @@
       isIELegacyEvent = function(event) { return true; };
     }
   }
-  
+
   // The two systems have different ways of indicating which button was used
   // for a mouse event.
   var _isButton;
-  
+
   function _isButtonForDOMEvents(event, code) {
     return event.which ? (event.which === code + 1) : (event.button === code);
   }
-  
+
   var legacyButtonMap = { 0: 1, 1: 4, 2: 2 };
   function _isButtonForLegacyEvents(event, code) {
     return event.button === legacyButtonMap[code];
   }
-  
+
   // In WebKit we have to account for when the user holds down the "meta" key.
   function _isButtonForWebKit(event, code) {
     switch (code) {
@@ -134,11 +158,11 @@
       default: return false;
     }
   }
-  
+
   if (window.attachEvent) {
     if (!window.addEventListener) {
       // Legacy IE events only.
-      _isButton = _isButtonForLegacyEvents;      
+      _isButton = _isButtonForLegacyEvents;
     } else {
       // Both systems are supported; decide at runtime.
       _isButton = function(event, code) {
@@ -146,7 +170,7 @@
          _isButtonForDOMEvents(event, code);
       }
     }
-  } else if (Prototype.Browser.WebKit) {
+  } else if (Improved.Browser.WebKit) {
     _isButton = _isButtonForWebKit;
   } else {
     _isButton = _isButtonForDOMEvents;
@@ -269,10 +293,10 @@
   **/
   function findElement(event, expression) {
     var element = Event.element(event);
-    
+
     if (!expression) return element;
     while (element) {
-      if (Object.isElement(element) && Prototype.Selector.match(element, expression)) {
+      if (Object.isElement(element) && Improved.Selector.match(element, expression)) {
         return Element.extend(element);
       }
       element = element.parentNode;
@@ -358,7 +382,7 @@
    *  handling.
    *  
    *  Because stopping one of those aspects means, in 99.9% of the cases, 
-   *  preventing the other one as well, Prototype bundles both in this `stop` 
+   *  preventing the other one as well, Improved bundles both in this `stop` 
    *  function. Calling it on an event object, stops propagation *and* prevents 
    *  the default behavior.
    *  
@@ -384,6 +408,7 @@
     // after the fact to determine whether or not it was stopped.
     event.stopped = true;
   }
+
 
 
   Event.Methods = {
@@ -454,9 +479,9 @@
       if (!isIELegacyEvent(event)) return event;
 
       // Mark this event so we know not to extend a second time.
-      if (event._extendedByPrototype) return event;
-      event._extendedByPrototype = Prototype.emptyFunction;
-      
+      if (event._extendedByImproved) return event;
+      event._extendedByImproved = Improved.emptyFunction;
+
       var pointer = Event.pointer(event);
 
       // The optional `element` argument gives us a fallback value for the
@@ -467,17 +492,17 @@
         pageX:  pointer.x,
         pageY:  pointer.y
       });
-      
+
       Object.extend(event, methods);
       Object.extend(event, additionalMethods);
-      
+
       return event;
     };
   } else {
     // Only DOM events, so no manual extending necessary.
-    Event.extend = Prototype.K;
+    Event.extend = Improved.K;
   }
-  
+
   if (window.addEventListener) {
     // In all browsers that support DOM L2 Events, we can augment
     // `Event.prototype` directly.
@@ -485,15 +510,15 @@
     Object.extend(Event.prototype, methods);
   }
 
-  function _createResponder(element, eventName, handler) {
+  function _createResponder(element, eventName, handler, once) {
     // We don't set a default on the call to Element#retrieve so that we can
     // handle the element's "virgin" state.
-    var registry = Element.retrieve(element, 'prototype_event_registry');
+    var registry = Element.retrieve(element, 'improved_event_registry');
 
     if (Object.isUndefined(registry)) {
       // First time we've handled this element. Put it into the cache.
       CACHE.push(element);
-      registry = Element.retrieve(element, 'prototype_event_registry', $H());
+      registry = Element.retrieve(element, 'improved_event_registry', $H());
     }
 
     var respondersForEvent = registry.get(eventName);
@@ -508,19 +533,11 @@
 
     var responder;
     if (eventName.include(":")) {
-      // Custom event.
-      responder = function(event) {
-        // If it's not a custom event, ignore it.
-        if (Object.isUndefined(event.eventName))
-          return false;
-
-        // If it's a custom event, but not the _correct_ custom event, ignore it.
-        if (event.eventName !== eventName)
-          return false;
-
-        Event.extend(event, element);
-        handler.call(element, event);
-      };
+      if( !!once ) {
+        responder = _getCustomResponder(element,eventName,handler,registry,respondersForEvent);
+      } else {
+        responder = _getCustomResponder(element,eventName,handler);
+      }
     } else {
       // Non-custom event.
       if (!MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED &&
@@ -528,32 +545,90 @@
         // If we're dealing with mouseenter or mouseleave in a non-IE browser,
         // we create a custom responder that mimics their behavior within
         // mouseover and mouseout.
-        if (eventName === "mouseenter" || eventName === "mouseleave") {
-          responder = function(event) {
-            Event.extend(event, element);
-
-            var parent = event.relatedTarget;
-            while (parent && parent !== element) {
-              try { parent = parent.parentNode; }
-              catch(e) { parent = element; }
-            }
-
-            if (parent === element) return;
-
-            handler.call(element, event);
-          };
+        if( !!once ) {
+          responder = _getMouseResponder(element,eventName,handler,registry,respondersForEvent);
+        } else {
+          responder = _getMouseResponder(element,eventName,handler);
         }
       } else {
-        responder = function(event) {
-          Event.extend(event, element);
-          handler.call(element, event);
-        };
+        if( !!once ) {
+          responder = _getDomResponder(element,eventName,handler,registry,respondersForEvent);
+        } else {
+          responder = _getDomResponder(element,eventName,handler);
+        }
       }
     }
 
     responder.handler = handler;
     respondersForEvent.push(responder);
     return responder;
+  }
+
+  function _removeListener(element, eventName, registry, responders, responder) {
+    if (eventName.include(':')) {
+      // Custom event.
+      if (element.removeEventListener)
+        element.removeEventListener("dataavailable", responder, false);
+      else {
+        element.detachEvent("ondataavailable", responder);
+      }
+    } else {
+      // Ordinary event.
+      var actualEventName = _getDOMEventName(eventName);
+      if (element.removeEventListener)
+        element.removeEventListener(actualEventName, responder, false);
+      else
+        element.detachEvent('on' + actualEventName, responder);
+    }
+    registry.set(eventName, responders.without(responder));
+  }
+
+  function _getCustomResponder(element,eventName,handler,registry,responders) {
+    return function(event) {
+      // If it's not a custom event, ignore it.
+      if (Object.isUndefined(event.eventName))
+        return false;
+
+      // If it's a custom event, but not the _correct_ custom event, ignore it.
+      if (event.eventName !== eventName)
+        return false;
+
+      Event.extend(event, element);
+
+      // non-bubbling event on IE
+      if (event.eventType != 'bubbling') {
+        event.stopPropagation();
+        if(event.target !== element)
+          return false;
+      }
+
+      if( registry && responders ) { _removeListener(element,eventName,registry,responders,arguments.callee); }
+      handler.call(element, event);
+    };
+  }
+
+  function _getMouseResponder(element,eventName,handler,registry,responders) {
+    return function(event) {
+      Event.extend(event, element);
+
+      var parent = event.relatedTarget;
+      while (parent && parent !== element) {
+        try { parent = parent.parentNode; }
+        catch(e) { parent = element; }
+      }
+
+      if (parent === element) return;
+      if( registry && responders ) { _removeListener(element,eventName,registry,responders,arguments.callee); }
+      handler.call(element, event);
+    };
+  }
+
+  function _getDomResponder(element,eventName,handler,registry,responders) {
+    return function(event) {
+      Event.extend(event, element);
+      if( registry && responders ) { _removeListener(element,eventName,registry,responders,arguments.callee); }
+      handler.call(element, event);
+    };
   }
 
   function _destroyCache() {
@@ -567,17 +642,17 @@
 
   // Internet Explorer needs to remove event handlers on page unload
   // in order to avoid memory leaks.
-  if (Prototype.Browser.IE)
+  if (Improved.Browser.IE)
     window.attachEvent('onunload', _destroyCache);
 
   // Safari needs a dummy event handler on page unload so that it won't
   // use its bfcache. Safari <= 3.1 has an issue with restoring the "document"
   // object when page is returned to via the back button using its bfcache.
-  if (Prototype.Browser.WebKit)
-    window.addEventListener('unload', Prototype.emptyFunction, false);
+  if (Improved.Browser.WebKit)
+    window.addEventListener('unload', Improved.emptyFunction, false);
 
 
-  var _getDOMEventName = Prototype.K,
+  var _getDOMEventName = Improved.K,
       translations = { mouseenter: "mouseover", mouseleave: "mouseout" };
 
   if (!MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED) {
@@ -587,24 +662,25 @@
   }
 
   /**
-   *  Event.observe(element, eventName, handler) -> Element
+   *  Event.observe(element, eventName, handler[, once]) -> Element
    *  - element (Element | String): The DOM element to observe, or its ID.
    *  - eventName (String): The name of the event, in all lower case, without
    *    the "on" prefix&nbsp;&mdash; e.g., "click" (not "onclick").
    *  - handler (Function): The function to call when the event occurs.
+   *  - once (Boolean): Stop observing before calling the handler, default to false.
    *
    *  Registers an event handler on a DOM element. Aliased as [[Element#observe]].
    *
    *  [[Event.observe]] smooths out a variety of differences between browsers
    *  and provides some handy additional features as well. Key features in brief:
    *  * Several handlers can be registered for the same event on the same element.
-   *  * Prototype figures out whether to use `addEventListener` (W3C standard) or
+   *  * Improved figures out whether to use `addEventListener` (W3C standard) or
    *    `attachEvent` (MSIE); you don't have to worry about it.
    *  * The handler is passed an _extended_ [[Event]] object (even on MSIE).
    *  * The handler's context (`this` value) is set to the extended element
    *    being observed (even if the event actually occurred on a descendent
    *    element and bubbled up).
-   *  * Prototype handles cleaning up the handler when leaving the page
+   *  * Improved handles cleaning up the handler when leaving the page
    *    (important for MSIE memory leak prevention).
    *  * [[Event.observe]] makes it possible to stop observing the event easily
    *    via [[Event.stopObserving]].
@@ -720,7 +796,7 @@
    *
    *  ##### Side Notes
    *
-   *  Although Prototype smooths out most of the differences between browsers,
+   *  Although Improved smooths out most of the differences between browsers,
    *  the fundamental behavior of a browser implementation isn't changed. For
    *  example, the timing of the `change` or `blur` events varies a bit from
    *  browser to browser.
@@ -737,10 +813,10 @@
    *  observed, automatically extending the [[Event]] object, and the
    *  [[Event#findElement]] method.
   **/
-  function observe(element, eventName, handler) {
+  function observe(element, eventName, handler, once) {
     element = $(element);
 
-    var responder = _createResponder(element, eventName, handler);
+    var responder = _createResponder(element, eventName, handler, once);
 
     if (!responder) return element;
 
@@ -749,10 +825,7 @@
       if (element.addEventListener)
         element.addEventListener("dataavailable", responder, false);
       else {
-        // We observe two IE-proprietarty events: one for custom events that
-        // bubble and one for custom events that do not bubble.
         element.attachEvent("ondataavailable", responder);
-        element.attachEvent("onlosecapture", responder);
       }
     } else {
       var actualEventName = _getDOMEventName(eventName);
@@ -781,7 +854,7 @@
    *  If `handler` is omitted, unregisters all event handlers on `element`
    *  for that `eventName`. If `eventName` is also omitted, unregisters _all_
    *  event handlers on `element`. (In each case, only affects handlers
-   *  registered via Prototype.)
+   *  registered via Improved.)
    *
    *  ##### Examples
    *
@@ -832,7 +905,7 @@
   function stopObserving(element, eventName, handler) {
     element = $(element);
 
-    var registry = Element.retrieve(element, 'prototype_event_registry');
+    var registry = Element.retrieve(element, 'improved_event_registry');
     if (!registry) return element;
 
     if (!eventName) {
@@ -856,7 +929,7 @@
       });
       return element;
     }
-    
+
     var i = responders.length, responder;
     while (i--) {
       if (responders[i].handler === handler) {
@@ -866,25 +939,7 @@
     }
     if (!responder) return element;
 
-    if (eventName.include(':')) {
-      // Custom event.
-      if (element.removeEventListener)
-        element.removeEventListener("dataavailable", responder, false);
-      else {
-        element.detachEvent("ondataavailable", responder);
-        element.detachEvent("onlosecapture", responder);
-      }
-    } else {
-      // Ordinary event.
-      var actualEventName = _getDOMEventName(eventName);
-      if (element.removeEventListener)
-        element.removeEventListener(actualEventName, responder, false);
-      else
-        element.detachEvent('on' + actualEventName, responder);
-    }
-
-    registry.set(eventName, responders.without(responder));
-
+    _removeListener(element,eventName,registry,responders,responder);
     return element;
   }
 
@@ -913,16 +968,16 @@
       event.initEvent('dataavailable', bubble, true);
     } else {
       event = document.createEventObject();
-      event.eventType = bubble ? 'ondataavailable' : 'onlosecapture';
     }
 
     event.eventName = eventName;
+    event.eventType = bubble ? 'bubbling' : 'notbubbling';
     event.memo = memo || { };
 
     if (document.createEvent)
       element.dispatchEvent(event);
     else
-      element.fireEvent(event.eventType, event);
+      element.fireEvent('ondataavailable', event);
 
     return Event.extend(event);
   }
@@ -941,7 +996,7 @@
   **/
   Event.Handler = Class.create({
     /**
-     *  new Event.Handler(element, eventName[, selector], callback)
+     *  new Event.Handler(element, eventName[, selector], callback[, once])
      *  - element (Element): The element to listen on.
      *  - eventName (String): An event to listen for. Can be a standard browser
      *    event or a custom event.
@@ -954,15 +1009,23 @@
      *    event. (If `selector` was given, this element will be the one that
      *    satisfies the criteria described just above; if not, it will be the
      *    one specified in the `element` argument).
+     *  - once (boolean): Calls stop before calling the callback.
      *  
      *  Instantiates an `Event.Handler`. **Will not** begin observing until
      *  [[Event.Handler#start]] is called.
     **/
-    initialize: function(element, eventName, selector, callback) {
+    initialize: function(element, eventName, selector, callback, once) {
       this.element   = $(element);
       this.eventName = eventName;
-      this.selector  = selector;
-      this.callback  = callback;
+      if (Object.isFunction(selector) && !Object.isFunction(callback) && Object.isUndefined(once)) {
+        this.selector  = null;
+        this.callback  = selector;
+        this.once      = !!callback;
+      } else {
+        this.selector  = selector;
+        this.callback  = callback;
+        this.once      = !!once;
+      }
       this.handler   = this.handleEvent.bind(this);
     },
 
@@ -988,7 +1051,10 @@
 
     handleEvent: function(event) {
       var element = Event.findElement(event, this.selector);
-      if (element) this.callback.call(this.element, event, element);
+      if (element) {
+        if( this.once ) this.stop();
+        this.callback.call(this.element, event, element);
+      }
     }
   });
   
@@ -1057,13 +1123,9 @@
    *  This means that, unlike `Event.stopObserving`, there's no need to
    *  retain a reference to the handler function.
   **/
-  function on(element, eventName, selector, callback) {
+  function on(element, eventName, selector, callback, once) {
     element = $(element);
-    if (Object.isFunction(selector) && Object.isUndefined(callback)) {
-      callback = selector, selector = null;
-    }
-    
-    return new Event.Handler(element, eventName, selector, callback).start();
+    return new Event.Handler(element, eventName, selector, callback, once).start();
   }
 
   Object.extend(Event, Event.Methods);
@@ -1143,7 +1205,7 @@
   /** section: DOM
    *  document
    *
-   *  Prototype extends the built-in `document` object with several convenience
+   *  Improved extends the built-in `document` object with several convenience
    *  methods related to events.
   **/
   Object.extend(document, {
@@ -1173,7 +1235,7 @@
      *  
      *  ##### The `"dom:loaded"` event
      *  
-     *  One really useful event generated by Prototype that you might want to
+     *  One really useful event generated by Improved that you might want to
      *  observe on the document is `"dom:loaded"`. On supporting browsers it
      *  fires on `DOMContentLoaded` and on unsupporting browsers it simulates it
      *  using smart workarounds. If you used `window.onload` before you might

@@ -1,3 +1,27 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 /** section: Language, related to: Array
  *  $A(iterable) -> Array
  *  
@@ -11,13 +35,13 @@
  *  `arguments` reference within your functions).
  *  
  *  The reason you would want an actual [[Array]] is simple:
- *  [[Array Prototype extends Array]] to equip it with numerous extra methods,
+ *  [[Array Improved extends Array]] to equip it with numerous extra methods,
  *  and also mixes in the [[Enumerable]] module, which brings in another
- *  boatload of nifty methods. Therefore, in Prototype, actual [[Array]]s trump
+ *  boatload of nifty methods. Therefore, in Improved, actual [[Array]]s trump
  *  any other collection type you might otherwise get.
  *  
  *  The conversion performed is rather simple: `null`, `undefined` and `false` become
- *  an empty array; any object featuring an explicit `toArray` method (as many Prototype
+ *  an empty array; any object featuring an explicit `toArray` method (as many Improved
  *  objects do) has it invoked; otherwise, we assume the argument "looks like an array"
  *  (e.g. features a `length` property and the `[]` operator), and iterate over its components
  *  in the usual way.
@@ -107,7 +131,7 @@ Array.from = $A;
  * class Array
  *  includes Enumerable
  *
- *  Prototype extends all native JavaScript arrays with quite a few powerful
+ *  Improved extends all native JavaScript arrays with quite a few powerful
  *  methods.
  *
  *  This is done in two ways:
@@ -115,7 +139,7 @@ Array.from = $A;
  *  * It mixes in the [[Enumerable]] module, which brings in a ton of methods.
  *  * It adds quite a few extra methods, which are documented in this section.
  *
- *  With Prototype, arrays become much, much more than the trivial objects we
+ *  With Improved, arrays become much, much more than the trivial objects we
  *  used to manipulate, limiting ourselves to using their `length` property and
  *  their `[]` indexing operator. They become very powerful objects that
  *  greatly simplify the code for 99% of the common use cases involving them.
@@ -124,7 +148,7 @@ Array.from = $A;
  *
  *  Many JavaScript authors have been misled into using the `for...in` JavaScript
  *  construct to loop over array elements. This kind of code just won't work
- *  with Prototype.
+ *  with Improved.
  *
  *  The ECMA 262 standard, which defines ECMAScript 3rd edition, supposedly
  *  implemented by all major browsers including MSIE, defines ten methods
@@ -139,10 +163,10 @@ Array.from = $A;
  *  methods when using for...in. This comfort led developers to use `for...in` as a
  *  shortcut for indexing loops, when it is not its actual purpose.
  *
- *  However, Prototype has no way to mark the methods it adds to
+ *  However, Improved has no way to mark the methods it adds to
  *  `Array.prototype` as non-enumerable. Therefore, using `for...in` on arrays
- *  when using Prototype will enumerate all extended methods as well, such as
- *  those coming from the [[Enumerable]] module, and those Prototype puts in the
+ *  when using Improved will enumerate all extended methods as well, such as
+ *  those coming from the [[Enumerable]] module, and those Improved puts in the
  *  [[Array]] namespace (listed further below).
  *
  *  ##### What you should use instead
@@ -398,7 +422,7 @@ Array.from = $A;
    *      // -> "['Apples', [object Object], 3, 34]"
   **/
   function inspect() {
-    return '[' + this.map(Object.inspect).join(', ') + ']';
+    return '[' + this.collect(Object.inspect).join(', ') + ']';
   }
 
   /**

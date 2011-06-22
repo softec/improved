@@ -1,3 +1,27 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 /** section: Ajax
  *  class Ajax.Request
  *
@@ -34,7 +58,7 @@
  *  5. Response received, request complete
  *  
  *  As you can see under the "Ajax options" heading of the [[Ajax section]],
- *  Prototype's AJAX objects define a whole slew of callbacks, which are
+ *  Improved's AJAX objects define a whole slew of callbacks, which are
  *  triggered in the following order:
  *  
  *  1. `onCreate` (this is actually a callback reserved to [[Ajax.Responders]])
@@ -78,7 +102,7 @@
  *  is generally defined, HTTP-wise, as either no response status or a "2xy"
  *  response status (e.g., 201 is a success, too). See the example below.
  *  
- *  Second, you could dispense with status testing altogether! Prototype adds
+ *  Second, you could dispense with status testing altogether! Improved adds
  *  callbacks specific to success and failure, which we listed above. Here's
  *  what you could do if you're only interested in success, for instance:
  *  
@@ -98,7 +122,7 @@
  *  pure-JavaScript Ajax responses. This is the convention that drives Rails's
  *  RJS.
  *
- *  The list of JavaScript-related MIME-types handled by Prototype is:
+ *  The list of JavaScript-related MIME-types handled by Improved is:
  *
  *  * `application/ecmascript`
  *  * `application/javascript`
@@ -145,7 +169,7 @@
  *
  *  Some backends will return JSON not as response text, but in the `X-JSON`
  *  header. In this case, you don't even need to evaluate the returned JSON
- *  yourself, as Prototype automatically does so. It passes the result as the
+ *  yourself, as Improved automatically does so. It passes the result as the
  *  `headerJSON` property of the [[Ajax.Response]] object. Note that if there
  *  is no such header &mdash; or its contents are invalid &mdash; `headerJSON`
  *  will be set to `null`.
@@ -231,7 +255,7 @@ Ajax.Request = Class.create(Ajax.Base, {
   setRequestHeaders: function() {
     var headers = {
       'X-Requested-With': 'XMLHttpRequest',
-      'X-Prototype-Version': Prototype.Version,
+      'X-Improved-Version': Improved.Version,
       'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
     };
 
@@ -289,7 +313,7 @@ Ajax.Request = Class.create(Ajax.Base, {
         this._complete = true;
         (this.options['on' + response.status]
          || this.options['on' + (this.success() ? 'Success' : 'Failure')]
-         || Prototype.emptyFunction)(response, response.headerJSON);
+         || Improved.emptyFunction)(response, response.headerJSON);
       } catch (e) {
         this.dispatchException(e);
       }
@@ -302,7 +326,7 @@ Ajax.Request = Class.create(Ajax.Base, {
     }
 
     try {
-      (this.options['on' + state] || Prototype.emptyFunction)(response, response.headerJSON);
+      (this.options['on' + state] || Improved.emptyFunction)(response, response.headerJSON);
       Ajax.Responders.dispatch('on' + state, this, response, response.headerJSON);
     } catch (e) {
       this.dispatchException(e);
@@ -310,7 +334,7 @@ Ajax.Request = Class.create(Ajax.Base, {
 
     if (state == 'Complete') {
       // avoid memory leak in MSIE: clean up
-      this.transport.onreadystatechange = Prototype.emptyFunction;
+      this.transport.onreadystatechange = Improved.emptyFunction;
     }
   },
 
@@ -346,7 +370,7 @@ Ajax.Request = Class.create(Ajax.Base, {
   },
 
   dispatchException: function(exception) {
-    (this.options.onException || Prototype.emptyFunction)(this, exception);
+    (this.options.onException || Improved.emptyFunction)(this, exception);
     Ajax.Responders.dispatch('onException', this, exception);
   }
 });

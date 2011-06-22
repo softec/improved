@@ -1,9 +1,33 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 /** section: Language
  * class Number
  *
  *  Extensions to the built-in `Number` object.
  *
- *  Prototype extends native JavaScript numbers in order to provide:
+ *  Improved extends native JavaScript numbers in order to provide:
  *
  *  * [[ObjectRange]] compatibility, through [[Number#succ]].
  *  * Numerical loops with [[Number#times]].
@@ -145,6 +169,77 @@ Object.extend(Number.prototype, (function() {
     return Math.floor(this);
   }
 
+    /**
+   * Returns this floating number rounded to the given precision
+   * @param precision {number} Optional, defaults to 14
+   * @return {number} the rounded number
+   */
+  function fround(precision) {
+    precision = Object.isUndefined(precision) ? Math.DEFAULT_PRECISION : precision;
+    return (precision && isFinite(this)) ? parseFloat(this.toPrecision(precision)) : this;
+  }
+
+  /**
+   * Convert to signed Int32
+   * @return {number} signed Int32 equivalent of this number
+   */
+  function toInt32() {
+    return this >> 0;
+  }
+
+  /**
+   * Convert to Unsigned Int32
+   * @return {number} signed Int32 equivalent of this number
+   */
+  function toUInt32() {
+    return this >>> 0;
+  }
+
+  /**
+   * Wrap this number to fit in the given limits
+   * @param min minimal limit
+   * @param max maximal limit
+   */
+  function wrap(min,max) {
+    if (this == Number.POSITIVE_INFINITY || this == Number.NEGATIVE_INFINITY) return min;
+    if (this >= min && this <= max) return this.valueOf();
+    var range = max - min;
+    return (this % range + range - min) % range + min;
+  }
+
+  /**
+   * Limit this number to fit in the given limits
+   * @param min minimal limit
+   * @param max maximal limit
+   */
+  function limit(min,max) {
+    return Math.min(Math.max(this,min),max);
+  }
+
+  /**
+   * Convert to CSS Style pixel value
+   */
+  function toCssPx() {
+    if (this == 0) { return '0'; }
+    return this.toFixed(2).replace(/\.?0+$/,'') + 'px';
+  }
+
+  /**
+   * Convert to CSS Style em value
+   */
+  function toCssEm() {
+    if (this == 0) { return '0'; }
+    return this.toFixed(2).replace(/\.?0+$/,'') + 'em';
+  }
+
+  /**
+   * Convert to CSS Style percent value
+   */
+  function toCssPc() {
+    if (this == 0) { return '0'; }
+    return this.toFixed(2).replace(/\.?0+$/,'') + '%';
+  }
+
   return {
     toColorPart:    toColorPart,
     succ:           succ,
@@ -153,6 +248,14 @@ Object.extend(Number.prototype, (function() {
     abs:            abs,
     round:          round,
     ceil:           ceil,
-    floor:          floor
+    floor:          floor,
+    fround:         fround,
+    toInt32:        toInt32,
+    toUInt32:       toUInt32,
+    wrap:           wrap,
+    limit:          limit,
+    toCssPx:        toCssPx,
+    toCssEm:        toCssEm,
+    toCssPc:        toCssPc
   };
 })());

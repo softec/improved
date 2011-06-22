@@ -1,14 +1,38 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 /** section: Language
  * mixin Enumerable
  *
  *  [[Enumerable]] provides a large set of useful methods for enumerations &mdash;
  *  objects that act as collections of values. It is a cornerstone of
- *  Prototype.
+ *  Improved.
  *
  *  [[Enumerable]] is a _mixin_: a set of methods intended not for standaone
  *  use, but for incorporation into other objects.
  *
- *  Prototype mixes [[Enumerable]] into several classes. The most visible cases
+ *  Improved mixes [[Enumerable]] into several classes. The most visible cases
  *  are [[Array]] and [[Hash]], but you'll find it in less obvious spots as
  *  well, such as in [[ObjectRange]] and various DOM- or Ajax-related objects.
  *
@@ -48,7 +72,7 @@
  *  numeric indices, etc.). You just need to implement the actual iteration,
  *  as fits your internal structure.
  *
- *  If you're still confused, just have a look at the Prototype source code for
+ *  If you're still confused, just have a look at the Improved source code for
  *  [[Array]], [[Hash]], or [[ObjectRange]]. They all begin with their own
  *  `_each` method, which should help you grasp the idea.
  *
@@ -81,9 +105,10 @@
  *
 **/
 
-var $break = { };
 
 var Enumerable = (function() {
+  var $break = { };
+
   /**
    *  Enumerable#each(iterator[, context]) -> Enumerable
    *  - iterator (Function): A `Function` that expects an item in the
@@ -119,7 +144,7 @@ var Enumerable = (function() {
   }
 
   /**
-   *  Enumerable#eachSlice(number[, iterator = Prototype.K[, context]]) -> Enumerable
+   *  Enumerable#eachSlice(number[, iterator = Improved.K[, context]]) -> Enumerable
    *  - number (Number): The number of items to include in each slice.
    *  - iterator (Function): An optional function to use to transform each
    *    element before it's included in the slice; if this is not provided,
@@ -155,7 +180,7 @@ var Enumerable = (function() {
   }
 
   /**
-   *  Enumerable#all([iterator = Prototype.K[, context]]) -> Boolean
+   *  Enumerable#all([iterator = Improved.K[, context]]) -> Boolean
    *  - iterator (Function): An optional function to use to evaluate
    *    each element in the enumeration; the function should return the value to
    *    test. If this is not provided, the element itself is tested.
@@ -183,7 +208,7 @@ var Enumerable = (function() {
    *      // -> false (the iterator returns false on 9)
   **/
   function all(iterator, context) {
-    iterator = iterator || Prototype.K;
+    iterator = iterator || Improved.K;
     var result = true;
     this.each(function(value, index) {
       result = result && !!iterator.call(context, value, index);
@@ -193,7 +218,7 @@ var Enumerable = (function() {
   }
 
   /**
-   *  Enumerable#any([iterator = Prototype.K[, context]]) -> Boolean
+   *  Enumerable#any([iterator = Improved.K[, context]]) -> Boolean
    *  - iterator (Function): An optional function to use to evaluate each
    *    element in the enumeration; the function should return the value to
    *    test. If this is not provided, the element itself is tested.
@@ -215,7 +240,7 @@ var Enumerable = (function() {
    *      // -> true (the iterator will return true on 6)
   **/
   function any(iterator, context) {
-    iterator = iterator || Prototype.K;
+    iterator = iterator || Improved.K;
     var result = false;
     this.each(function(value, index) {
       if (result = !!iterator.call(context, value, index))
@@ -225,7 +250,7 @@ var Enumerable = (function() {
   }
 
   /**
-   *  Enumerable#collect([iterator = Prototype.K[, context]]) -> Array
+   *  Enumerable#collect([iterator = Improved.K[, context]]) -> Array
    *  - iterator (Function): The iterator function to apply to each element
    *    in the enumeration.
    *  - context (Object): An optional object to use as `this` within
@@ -248,7 +273,7 @@ var Enumerable = (function() {
    *      // -> [1, 4, 9, 16, 25]
   **/
   function collect(iterator, context) {
-    iterator = iterator || Prototype.K;
+    iterator = iterator || Improved.K;
     var results = [];
     this.each(function(value, index) {
       results.push(iterator.call(context, value, index));
@@ -306,7 +331,7 @@ var Enumerable = (function() {
   }
 
   /**
-   *  Enumerable#grep(filter[, iterator = Prototype.K[, context]]) -> Array
+   *  Enumerable#grep(filter[, iterator = Improved.K[, context]]) -> Array
    *  - filter (RegExp | String | Object): The filter to apply to elements. This
    *    can be a `RegExp` instance, a regular expression [[String]], or any
    *    object with a `match` function.
@@ -337,7 +362,7 @@ var Enumerable = (function() {
    *      // -> [4, 9, 14, 19, 24, 29]
   **/
   function grep(filter, iterator, context) {
-    iterator = iterator || Prototype.K;
+    iterator = iterator || Improved.K;
     var results = [];
 
     if (Object.isString(filter))
@@ -476,13 +501,13 @@ var Enumerable = (function() {
   **/
   function invoke(method) {
     var args = $A(arguments).slice(1);
-    return this.map(function(value) {
+    return this.collect(function(value) {
       return value[method].apply(value, args);
     });
   }
 
   /** related to: Enumerable#min
-   *  Enumerable#max([iterator = Prototype.K[, context]]) -> maxValue
+   *  Enumerable#max([iterator = Improved.K[, context]]) -> maxValue
    *  - iterator (Function): An optional function to use to evaluate each
    *    element in the enumeration; the function should return the value to
    *    test. If this is not provided, the element itself is tested.
@@ -511,7 +536,7 @@ var Enumerable = (function() {
    *      // -> 4
   **/
   function max(iterator, context) {
-    iterator = iterator || Prototype.K;
+    iterator = iterator || Improved.K;
     var result;
     this.each(function(value, index) {
       value = iterator.call(context, value, index);
@@ -522,7 +547,7 @@ var Enumerable = (function() {
   }
 
   /** related to: Enumerable#max
-   *  Enumerable#min([iterator = Prototype.K[, context]]) -> minValue
+   *  Enumerable#min([iterator = Improved.K[, context]]) -> minValue
    *  - iterator (Function): An optional function to use to evaluate each
    *    element in the enumeration; the function should return the value to
    *    test. If this is not provided, the element itself is tested.
@@ -551,7 +576,7 @@ var Enumerable = (function() {
    *      // -> 2
   **/
   function min(iterator, context) {
-    iterator = iterator || Prototype.K;
+    iterator = iterator || Improved.K;
     var result;
     this.each(function(value, index) {
       value = iterator.call(context, value, index);
@@ -562,7 +587,7 @@ var Enumerable = (function() {
   }
 
   /**
-   *  Enumerable#partition([iterator = Prototype.K[, context]]) -> [TrueArray, FalseArray]
+   *  Enumerable#partition([iterator = Improved.K[, context]]) -> [TrueArray, FalseArray]
    *  - iterator (Function): An optional function to use to evaluate each
    *    element in the enumeration; the function should return the value to
    *    test. If this is not provided, the element itself is tested.
@@ -589,7 +614,7 @@ var Enumerable = (function() {
    *      // -> [[2, 4, 6, 8, 10], [1, 3, 5, 7, 9]]
   **/
   function partition(iterator, context) {
-    iterator = iterator || Prototype.K;
+    iterator = iterator || Improved.K;
     var trues = [], falses = [];
     this.each(function(value, index) {
       (iterator.call(context, value, index) ?
@@ -665,7 +690,7 @@ var Enumerable = (function() {
    *      // -> ['is', 'nice', 'this', 'world', 'hello']
   **/
   function sortBy(iterator, context) {
-    return this.map(function(value, index) {
+    return this.collect(function(value, index) {
       return {
         value: value,
         criteria: iterator.call(context, value, index)
@@ -690,11 +715,11 @@ var Enumerable = (function() {
    *      // -> [['name', 'Sunny'], ['age', 20]]
   **/
   function toArray() {
-    return this.map();
+    return this.collect();
   }
 
   /**
-   *  Enumerable#zip(sequence...[, iterator = Prototype.K]) -> Array
+   *  Enumerable#zip(sequence...[, iterator = Improved.K]) -> Array
    *  - sequence (Object): A sequence to zip with this enumerable (there can
    *    be several of these if desired).
    *  - iterator (Function): Optional function to use to transform the tuples
@@ -726,12 +751,12 @@ var Enumerable = (function() {
    *      // -> ['Jane Doe is 23', 'Nitin Patel is 41', 'Guy Forcier is 17']
   **/
   function zip() {
-    var iterator = Prototype.K, args = $A(arguments);
+    var iterator = Improved.K, args = $A(arguments);
     if (Object.isFunction(args.last()))
       iterator = args.pop();
 
-    var collections = [this].concat(args).map($A);
-    return this.map(function(value, index) {
+    var collections = [this].concat(args).collect($A);
+    return this.collect(function(value, index) {
       return iterator(collections.pluck(index));
     });
   }
@@ -755,15 +780,15 @@ var Enumerable = (function() {
   }
 
   /** alias of: Enumerable#collect
-   *  Enumerable#map([iterator = Prototype.K[, context]]) -> Array
+   *  Enumerable#map([iterator = Improved.K[, context]]) -> Array
   **/
 
   /** alias of: Enumerable#any
-   *  Enumerable#some([iterator = Prototype.K[, context]]) -> Boolean
+   *  Enumerable#some([iterator = Improved.K[, context]]) -> Boolean
   **/
 
   /** alias of: Enumerable#all
-   *  Enumerable#every([iterator = Prototype.K[, context]]) -> Boolean
+   *  Enumerable#every([iterator = Improved.K[, context]]) -> Boolean
   **/
 
   /** alias of: Enumerable#findAll
@@ -794,7 +819,6 @@ var Enumerable = (function() {
     any:        any,
     some:       any,
     collect:    collect,
-    map:        collect,
     detect:     detect,
     findAll:    findAll,
     select:     findAll,

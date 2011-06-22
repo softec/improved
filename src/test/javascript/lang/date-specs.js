@@ -22,30 +22,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/** section: Language
- * class RegExp
- *
- *  Extensions to the built-in `RegExp` object.
-**/
+describe('Date', function() {
 
-/**
- *  RegExp#match(str) -> Boolean
- *  - str (String): a string against witch to match the regular expression.
- *
- *  Alias of the native `RegExp#test` method. Returns `true`
- *  if `str` matches the regular expression, `false` otherwise.
- **/
-RegExp.prototype.match = RegExp.prototype.test;
+  it('can be converted to JSON', function() {
+    expect(new Date(Date.UTC(1970, 0, 1)).toJSON()).toMatch(/^1970-01-01T00:00:00(\.000)?Z$/);
+  });
 
-/**
- *  RegExp.escape(str) -> String
- *  - str (String): A string intended to be used in a `RegExp` constructor.
- *
- *  Escapes any characters in the string that have special meaning in a
- *  regular expression.
- *
- *  Use before passing a string into the `RegExp` constructor.
-**/
-RegExp.escape = function(str) {
-  return String(str).replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
-};
+  it('can be converted to ISO', function() {
+    expect(new Date(Date.UTC(1970, 0, 1)).toISOString()).toMatch(/^1970-01-01T00:00:00(\.000)?Z$/);
+  });
+  
+});

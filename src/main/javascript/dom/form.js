@@ -1,3 +1,27 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 /** section: DOM
  * Form
  *
@@ -107,7 +131,7 @@ var Form = {
     if (typeof options != 'object') options = { hash: !!options };
     else if (Object.isUndefined(options.hash)) options.hash = true;
     var key, value, submitted = false, submit = options.submit, accumulator, initial;
-    
+
     if (options.hash) {
       initial = {};
       accumulator = function(result, key, value) {
@@ -123,7 +147,7 @@ var Form = {
         return result + (result ? '&' : '') + encodeURIComponent(key) + '=' + encodeURIComponent(value);
       }
     }
-    
+
     return elements.inject(initial, function(result, element) {
       if (!element.disabled && element.name) {
         key = element.name; value = $(element).getValue();
@@ -233,7 +257,7 @@ Form.Methods = {
     form = $(form);
     var inputs = form.getElementsByTagName('input');
 
-    if (!typeName && !name) return $A(inputs).map(Element.extend);
+    if (!typeName && !name) return $A(inputs).collect(Element.extend);
 
     for (var i = 0, matchingInputs = [], length = inputs.length; i < length; i++) {
       var input = inputs[i];
@@ -737,22 +761,22 @@ Form.Element.Serializers = (function() {
         return valueSelector(element, value);
     }
   }
-  
+
   function inputSelector(element, value) {
     if (Object.isUndefined(value))
       return element.checked ? element.value : null;
-    else element.checked = !!value;    
+    else element.checked = !!value;
   }
-  
+
   function valueSelector(element, value) {
     if (Object.isUndefined(value)) return element.value;
     else element.value = value;
   }
-  
+
   function select(element, value) {
     if (Object.isUndefined(value))
       return (element.type === 'select-one' ? selectOne : selectMany)(element);
-       
+
     var opt, currentValue, single = !Object.isArray(value);
     for (var i = 0, length = element.length; i < length; i++) {
       opt = element.options[i];
@@ -766,12 +790,12 @@ Form.Element.Serializers = (function() {
       else opt.selected = value.include(currentValue);
     }
   }
-  
+
   function selectOne(element) {
     var index = element.selectedIndex;
     return index >= 0 ? optionValue(element.options[index]) : null;
   }
-  
+
   function selectMany(element) {
     var values, length = element.length;
     if (!length) return null;
@@ -782,11 +806,11 @@ Form.Element.Serializers = (function() {
     }
     return values;
   }
-  
+
   function optionValue(opt) {
     return Element.hasAttribute(opt, 'value') ? opt.value : opt.text;
   }
-  
+
   return {
     input:         input,
     inputSelector: inputSelector,

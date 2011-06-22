@@ -1,3 +1,27 @@
+/*
+ * Copyright 2011 SOFTEC sa. All rights reserved.
+ *
+ * Work derived from:
+ * # Prototype JavaScript framework, version 1.6.1 and later
+ * # (c) 2005-2009 Sam Stephenson
+ * # Prototype is freely distributable under the terms of an MIT-style license.
+ * # For details, see the Prototype web site: http://www.prototypejs.org/
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 /** section: Language
  * class Object
  *
@@ -7,15 +31,15 @@
  *  add instance methods to objects), all these methods are static methods that
  *  take an [[Object]] as their first parameter.
  *
- *  [[Object]] is used by Prototype as a namespace; that is, it just keeps a few 
+ *  [[Object]] is used by Improved as a namespace; that is, it just keeps a few 
  *  new methods together, which are intended for namespaced access (i.e. starting
  *  with "`Object.`").
  *  
- *  For the regular developer (who simply uses Prototype without tweaking it), the
+ *  For the regular developer (who simply uses Improved without tweaking it), the
  *  most commonly used methods are probably [[Object.inspect]] and, to a lesser degree, 
  *  [[Object.clone]].
  *  
- *  Advanced users, who wish to create their own objects like Prototype does, or
+ *  Advanced users, who wish to create their own objects like Improved does, or
  *  explore objects as if they were hashes, will turn to [[Object.extend]], 
  *  [[Object.keys]], and [[Object.values]].
 **/
@@ -37,8 +61,8 @@
       NATIVE_JSON_STRINGIFY_SUPPORT = window.JSON &&
         typeof JSON.stringify === 'function' &&
         JSON.stringify(0) === '0' &&
-        typeof JSON.stringify(Prototype.K) === 'undefined';
-        
+        typeof JSON.stringify(Improved.K) === 'undefined';
+
   function Type(o) {
     switch(o) {
       case null: return NULL_TYPE;
@@ -85,7 +109,7 @@
    *  * Other types are looked up for a `inspect` method: if there is one, it is used, otherwise,
    *  it reverts to the `toString` method.
    *  
-   *  Prototype provides `inspect` methods for many types, both built-in and library-defined,
+   *  Improved provides `inspect` methods for many types, both built-in and library-defined,
    *  such as in [[String#inspect]], [[Array#inspect]], [[Enumerable#inspect]] and [[Hash#inspect]],
    *  which attempt to provide most-useful string representations (from a developer's standpoint)
    *  for their respective types.
@@ -109,7 +133,8 @@
   **/
   function inspect(object) {
     try {
-      if (isUndefined(object)) return 'undefined';
+      if (arguments.length == 0) return 'Object';
+      if (Object.isUndefined(object)) return 'undefined';
       if (object === null) return 'null';
       return object.inspect ? object.inspect() : String(object);
     } catch (e) {
@@ -131,7 +156,7 @@
    *  If there is one, it is used; otherwise the object is treated like a
    *  generic [[Object]].
    *  
-   *  For more information on Prototype's JSON encoder, hop to our
+   *  For more information on Improved's JSON encoder, hop to our
    *  [tutorial](http://prototypejs.org/learn/json).
    *  
    *  ##### Example
@@ -256,10 +281,10 @@
    *        }
    *      });
    *      
-   *      var api = new Bookmark('Prototype API', 'http://prototypejs.org/api');
+   *      var api = new Bookmark('Improved API', 'http://prototypejs.org/api');
    *      
    *      Object.toHTML(api);
-   *      //-> '<a href="http://prototypejs.org/api">Prototype API</a>'
+   *      //-> '<a href="http://prototypejs.org/api">Improved API</a>'
    *      
    *      Object.toHTML("Hello world!");
    *      //-> "Hello world!"
@@ -302,7 +327,7 @@
    *      Object.keys();
    *      // -> []
    *      
-   *      Object.keys({ name: 'Prototype', version: '1.6.1' }).sort();
+   *      Object.keys({ name: 'Improved', version: '1.6.1' }).sort();
    *      // -> ['name', 'version']
   **/
   function keys(object) {
@@ -334,8 +359,8 @@
    *      Object.values();
    *      // -> []
    *      
-   *      Object.values({ name: 'Prototype', version: '1.6.1' }).sort();
-   *      // -> ['1.6.1', 'Prototype']
+   *      Object.values({ name: 'Improved', version: '1.6.1' }).sort();
+   *      // -> ['1.6.1', 'Improved']
   **/
   function values(object) {
     var results = [];
@@ -426,10 +451,10 @@
   function isArray(object) {
     return _toString.call(object) === ARRAY_CLASS;
   }
-  
-  var hasNativeIsArray = (typeof Array.isArray == 'function') 
+
+  var hasNativeIsArray = (typeof Array.isArray == 'function')
     && Array.isArray([]) && !Array.isArray({});
-  
+
   if (hasNativeIsArray) {
     isArray = Array.isArray;
   }
@@ -564,6 +589,73 @@
     return typeof object === "undefined";
   }
 
+  /**
+   * Return the class name of the type of an object
+   * @param object the object
+   * @return {String} the name of its class
+   */
+  function getTypeName(object) {
+    return ((!Object.isUndefined(object)
+            && object.constructor && ((object.constructor.inspect && object.constructor.inspect())
+                                    || (object.constructor.functionName && object.constructor.functionName())))
+           || typeof object);
+  }
+
+  /**
+   * Return the fully qualified name of the type of an object
+   * @param object the object
+   * @return {String} the fully qualified name of its class
+   */
+  function getTypeFQName(object) {
+;;; if( !Object.isUndefined(object) && object.constructor && object.constructor.namespace ) {
+;;;   return object.constructor.namespace + '.' + getTypeName(object);
+;;; }
+    return getTypeName(object);
+  }
+
+  /**
+   * Convert to Float (with a precision of Number.prototype.DEFAULT_PRECISION
+   * @param precision {number} Optional, precision of the resulting float, defaults
+   *                           to Number.prototype.DEFAULT_PRECISION
+   * @return {number} float equivalent of this object
+   */
+  function toFloat(object, precision) {
+      return (Object.isNumber(this) ? object : parseFloat(object)).fround(precision);
+  }
+
+  /**
+   * Convert to Integer
+   * @return {number} nearest integer equivalent of this object
+   */
+  function toInteger(object) {
+      return (Object.isNumber(object) ? object : parseFloat(object)).round();
+  }
+
+  /**
+   * Convert to Boolean
+   * @return {boolean} return a boolean representing the provided object boolean evaluation
+   */
+  function toBoolean(object) {
+      return !!object;
+  }
+
+  /**
+   * Convert to Boolean and apply not operation to it
+   * @return {boolean} return a boolean representing the inverse of the provided object boolean evaluation
+   */
+  function toNotBoolean(object) {
+      return !object;
+  }
+
+  /**
+   * Check if an Object is a Class (created with prototype)
+   * @param object {object} an object to check
+   * @return {boolean} true when object is a Class
+   */
+  function isClass(object) {
+      return Object.isFunction(object.addMethods);
+  }
+
   extend(Object, {
     extend:        extend,
     inspect:       inspect,
@@ -580,6 +672,13 @@
     isString:      isString,
     isNumber:      isNumber,
     isDate:        isDate,
-    isUndefined:   isUndefined
+    isUndefined:   isUndefined,
+    getTypeName:   getTypeName,
+    getTypeFQName: getTypeFQName,
+    toFloat:       toFloat,
+    toInteger:     toInteger,
+    toBoolean:     toBoolean,
+    toNotBoolean:  toNotBoolean,
+    isClass:       isClass
   });
 })();
