@@ -108,14 +108,6 @@
     return 0;
   }
 
-  // Turns plain numbers into pixel measurements.
-  function toCSSPixels(number) {
-    if (Object.isString(number) && number.endsWith('px')) {
-      return number;
-    }
-    return number + 'px';
-  }
-
   function isDisplayed(element) {
     var originalElement = element;
     while (element && element.parentNode) {
@@ -933,6 +925,65 @@
 
     return dimensions;
   }
+
+  function getShrinkWrapper(maxWidth, maxHeight, styleContext, className) {
+    var div = styleContext || $$('body')[0],
+        container = new Element('div').setStyle({
+          border: 'none',
+          margin: 0,
+          padding: 0,
+          position:'absolute',
+          top: (-maxHeight + div.offsetTop).toCssPx(),
+          left: (-maxWidth + div.offsetLeft).toCssPx(),
+          width: maxWidth.toCssPx(), height: maxHeight.toCssPx()
+        });
+    if( className ) container.className = className;
+    div.appendChild(container);
+    return container;
+  }
+
+  function getShrinkWrappedDimensions(element, maxWidth, maxHeight, styleContext, className, callback) {
+    var isElement = Object.isElement(element), elementParent, placeHolder, elementWidth, elementHeight;
+
+    if( isElement ) {
+      if( elementParent = element.parentNode ) {
+        placeHolder = new Element('div');
+        elementParent.replaceChild(placeHolder, element);
+      }
+      elementWidth = element.style.width;
+      elementHeight = element.style.height;
+      element.style.width = 'auto';
+      element.style.height = 'auto';
+    }
+
+    var inlinedElement = new Element('span').setStyle({display:'inline-block', zoom:1, maxHeight:maxHeight.toCssPx()})
+                                            .update(element),
+        shrinkWrapper = getShrinkWrapper(maxWidth, maxHeight,styleContext, className).update(inlinedElement),
+        size = inlinedElement.getDimensions();
+
+    if( isElement && Object.isFunction(callback) ) {
+      element.select('img').each(function(el){
+        if(!el.readAttribute("height") && !parseInt(el.getStyle('height'))) {
+          el.observe('load',callback,true); // observe once
+        }
+      }, this);
+    }
+
+    shrinkWrapper.remove();
+
+    if( isElement ) {
+      element.style.width = elementWidth;
+      element.style.height = elementHeight;
+      if( elementParent ) {
+        elementParent.replaceChild(element, placeHolder);
+      }
+    }
+
+    if( Improved.Browser.Gecko ) size.width += 1;
+
+    return size;
+  }
+
   
   /**
    *  Element.getOffsetParent(@element) -> Element
@@ -1177,18 +1228,18 @@
     };
   }
   
-  
   Element.addMethods({
-    getLayout:              getLayout,
-    measure:                measure,
-    getDimensions:          getDimensions,
-    getOffsetParent:        getOffsetParent,
-    cumulativeOffset:       cumulativeOffset,
-    positionedOffset:       positionedOffset,
-    cumulativeScrollOffset: cumulativeScrollOffset,
-    viewportOffset:         viewportOffset,
-    absolutize:             absolutize,
-    relativize:             relativize
+    getLayout:                  getLayout,
+    measure:                    measure,
+    getDimensions:              getDimensions,
+    getShrinkWrappedDimensions: getShrinkWrappedDimensions,
+    getOffsetParent:            getOffsetParent,
+    cumulativeOffset:           cumulativeOffset,
+    positionedOffset:           positionedOffset,
+    cumulativeScrollOffset:     cumulativeScrollOffset,
+    viewportOffset:             viewportOffset,
+    absolutize:                 absolutize,
+    relativize:                 relativize
   });
 
   function isBody(element) {
