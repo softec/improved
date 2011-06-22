@@ -2695,6 +2695,14 @@ Element.Methods = {
       element.style['behavior'] = 'url(#default#VML)';
     }
     return element;
+  },
+
+  installEffect: function(element, effect) {
+    return effect.install(element);
+  },
+
+  removeEffect: function(element, effect) {
+    return effect.remove(element);
   }
 };
 

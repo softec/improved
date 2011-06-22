@@ -115,6 +115,7 @@
             <source>dom/event.js</source>
             <source>dom/element.js</source>
             <source>dom/animation.js</source>
+            <source>dom/button.js</source>
           </preloadSources>
         </configuration>
       </plugin>
