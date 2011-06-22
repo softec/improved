@@ -899,6 +899,140 @@ Object.extend(String.prototype, (function() {
     return new Template(this, pattern).evaluate(object);
   }
 
+  /*
+   * Unicode and SHA-1 functions inspired from:
+   * SHA-1 implementation in JavaScript | (c) Chris Veness 2002-2010 | www.movable-type.co.uk
+   */
+  function toUTF8() {
+    // use regular expressions & String.replace callback function for better efficiency
+    // than procedural approaches
+    var strUtf = this.replace(
+        /[\u0080-\u07ff]/g,  // U+0080 - U+07FF => 2 bytes 110yyyyy, 10zzzzzz
+        function(c) {
+          var cc = c.charCodeAt(0);
+          return String.fromCharCode(0xc0 | cc>>6, 0x80 | cc&0x3f); }
+      );
+    strUtf = strUtf.replace(
+        /[\u0800-\uffff]/g,  // U+0800 - U+FFFF => 3 bytes 1110xxxx, 10yyyyyy, 10zzzzzz
+        function(c) {
+          var cc = c.charCodeAt(0);
+          return String.fromCharCode(0xe0 | cc>>12, 0x80 | cc>>6&0x3F, 0x80 | cc&0x3f); }
+      );
+    return strUtf;
+  }
+
+  function fromUTF8() {
+    // note: decode 3-byte chars first as decoded 2-byte strings could appear to be 3-byte char!
+    var strUni = this.replace(
+        /[\u00e0-\u00ef][\u0080-\u00bf][\u0080-\u00bf]/g,  // 3-byte chars
+        function(c) {  // (note parentheses for precence)
+          var cc = ((c.charCodeAt(0)&0x0f)<<12) | ((c.charCodeAt(1)&0x3f)<<6) | ( c.charCodeAt(2)&0x3f);
+          return String.fromCharCode(cc); }
+      );
+    strUni = strUni.replace(
+        /[\u00c0-\u00df][\u0080-\u00bf]/g,                 // 2-byte chars
+        function(c) {  // (note parentheses for precence)
+          var cc = (c.charCodeAt(0)&0x1f)<<6 | c.charCodeAt(1)&0x3f;
+          return String.fromCharCode(cc); }
+      );
+    return strUni;
+  }
+
+  //
+  // function 'f' [§4.1.1]
+  //
+  function Sha1F(s, x, y, z)  {
+    switch (s) {
+    case 0: return (x & y) ^ (~x & z);           // Ch()
+    case 1: return x ^ y ^ z;                    // Parity()
+    case 2: return (x & y) ^ (x & z) ^ (y & z);  // Maj()
+    case 3: return x ^ y ^ z;                    // Parity()
+    }
+  }
+
+  //
+  // rotate left (circular left shift) value x by n positions [§3.2.5]
+  //
+  function Sha1ROTL(x, n) {
+    return (x<<n) | (x>>>(32-n));
+  }
+
+  function toSHA1(utf8encode) {
+    utf8encode =  Object.isUndefined(utf8encode) || utf8encode;
+
+    var msg = this;
+
+    // convert string to UTF-8, as SHA only deals with byte-streams
+    if (utf8encode) msg = msg.toUTF8();
+
+    // PREPROCESSING
+
+    msg += String.fromCharCode(0x80);  // add trailing '1' bit (+ 0's padding) to string [§5.1.1]
+
+    // constants [§4.2.1]
+    var K = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6],
+
+        msglen = msg.length, i, t,
+
+        N = Math.ceil((msglen/4 + 2)/16);   // number of 16-integer-blocks required to hold
+                                            // length (in 32-bit integers) of msg + ‘1’ + appended length
+
+    var a, b, c, d, e, s, T,
+    // set initial hash value [§5.3.1], and initialize a, b, c, d, e to the previous hash value
+        H0 = a = 0x67452301,
+        H1 = b = 0xefcdab89,
+        H2 = c = 0x98badcfe,
+        H3 = d = 0x10325476,
+        H4 = e = 0xc3d2e1f0,
+
+    // HASH COMPUTATION [§6.1.2]
+
+        W = new Array(80);
+
+    for (i=0; i<N; i++) {
+
+      // Preprocessing done progressively during computation to reduce memory consumption
+      // convert string msg into 512-bit/16-integer blocks of ints [§5.2.1]
+      for (t=0; t<16; t++) {  // encode 4 chars per integer, big-endian encoding
+        W[t] = (msg.charCodeAt(i*64+t*4)<<24) | (msg.charCodeAt(i*64+t*4+1)<<16) |
+          (msg.charCodeAt(i*64+t*4+2)<<8) | (msg.charCodeAt(i*64+t*4+3));
+      } // note running off the end of msg is ok 'cos bitwise ops on NaN return 0
+
+      // add length (in bits) into final pair of 32-bit integers (big-endian) [§5.1.1]
+      // note: most significant word would be (len-1)*8 >>> 32, but since JS converts
+      // bitwise-op args to 32 bits, we need to simulate this by arithmetic operators
+      if( i == N-1 ) {
+        W[14] = Math.floor(((msglen-1)*8) / Math.pow(2, 32));
+        W[15] = ((msglen-1)*8) >>> 0;
+      }
+
+      // 1 - prepare message schedule 'W'
+      for (t=16; t<80; t++) W[t] = Sha1ROTL(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1);
+
+      // 2 - the five working variables a, b, c, d, e already contains previous hash value
+
+      // 3 - main loop
+      for (t=0; t<80; t++) {
+        s = Math.floor(t/20); // seq for blocks of 'f' functions and 'K' constants
+        T = (Sha1ROTL(a,5) + Sha1F(s,b,c,d) + e + K[s] + W[t]) >>> 0;
+        e = d;
+        d = c;
+        c = Sha1ROTL(b, 30);
+        b = a;
+        a = T;
+      }
+
+      // 4 - compute the new intermediate hash value and store previous hash value in a, b, c, d, e
+      H0 = a = (H0+a) >>> 0;  // note 'addition modulo 2^32'
+      H1 = b = (H1+b) >>> 0;
+      H2 = c = (H2+c) >>> 0;
+      H3 = d = (H3+d) >>> 0;
+      H4 = e = (H4+e) >>> 0;
+    }
+
+    return H0.toHex32String().concat(H1.toHex32String(), H2.toHex32String(), H3.toHex32String(), H4.toHex32String());
+  }
+
   return {
     gsub:           gsub,
     sub:            sub,
@@ -932,7 +1066,10 @@ Object.extend(String.prototype, (function() {
     endsWith:       endsWith,
     empty:          empty,
     blank:          blank,
-    interpolate:    interpolate
+    interpolate:    interpolate,
+    toUTF8:         toUTF8,
+    fromUTF8:       fromUTF8,
+    toSHA1:         toSHA1
   };
 })());
 

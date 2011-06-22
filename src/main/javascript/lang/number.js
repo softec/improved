@@ -240,6 +240,21 @@ Object.extend(Number.prototype, (function() {
     return this.toFixed(2).replace(/\.?0+$/,'') + '%';
   }
 
+  /*
+   * Unicode and SHA-1 functions inspired from:
+   * SHA-1 implementation in JavaScript | (c) Chris Veness 2002-2010 | www.movable-type.co.uk
+   */
+  //
+  // hexadecimal representation of a number
+  //   (note toString(16) is implementation-dependant, and
+  //   in IE returns signed numbers when used on full words)
+  //
+  function toHex32String() {
+    var s="", v;
+    for (var i=7; i>=0; i--) { v = (this>>>(i*4)) & 0xf; s += v.toString(16); }
+    return s;
+  }
+
   return {
     toColorPart:    toColorPart,
     succ:           succ,
@@ -256,6 +271,7 @@ Object.extend(Number.prototype, (function() {
     limit:          limit,
     toCssPx:        toCssPx,
     toCssEm:        toCssEm,
-    toCssPc:        toCssPc
+    toCssPc:        toCssPc,
+    toHex32String:  toHex32String
   };
 })());
