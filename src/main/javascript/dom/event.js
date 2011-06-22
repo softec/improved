@@ -106,10 +106,8 @@
     cache: {}
   };
 
-  var docEl = document.documentElement;
-  var MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED = 'onmouseenter' in docEl
-    && 'onmouseleave' in docEl;
-
+  var docEl = document.documentElement,
+      MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED = 'onmouseenter' in docEl && 'onmouseleave' in docEl;
 
   // We need to support three different event "modes":
   //  1. browsers with only DOM L2 Events (WebKit, FireFox);
@@ -652,13 +650,16 @@
     window.addEventListener('unload', Improved.emptyFunction, false);
 
 
-  var _getDOMEventName = Improved.K,
-      translations = { mouseenter: "mouseover", mouseleave: "mouseout" };
+  var translations = {},
+      _getDOMEventName = function(eventName) {
+        return (translations[eventName] || eventName);
+      }
 
   if (!MOUSEENTER_MOUSELEAVE_EVENTS_SUPPORTED) {
-    _getDOMEventName = function(eventName) {
-      return (translations[eventName] || eventName);
-    };
+    Object.extend(translations,{ mouseenter: "mouseover", mouseleave: "mouseout" });
+  }
+  if ('transitionend' != Improved.BrowserExtensions.transitionEnd) {
+    Object.extend(translations,{ transitionend: Improved.BrowserExtensions.transitionEnd });
   }
 
   /**

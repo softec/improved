@@ -171,6 +171,46 @@ var Improved = (function (Improved) {
   dev.SmartPhone = dev.iPhone || dev.Android || brw.MobileSafari || brw.WindowsPhone;
 
   /**
+   *  Improved.BrowserExtensions
+   *
+   *  Provide constants for browser extensions, like -moz- and -webkit-.
+   *  Improved.BrowserExtensions.cssPrefix is for CSS
+   *  Improved.BrowserExtensions.jsPrefix is for CSS manipulation in JavaScript
+   *  Improved.BrowserExtensions.transitionEnd is the name of the transitionEnd event.
+  **/
+  Improved.BrowserExtensions = (function(ex){
+    if(brw.IE) {
+      if (brw.IEVersion >= 9) {
+        ex.cssPrefix = '-ms-';
+        ex.jsPrefix = 'ms';
+      }
+      return ex;
+    }
+    if(brw.Opera) {
+      ex.cssPrefix = '-o-';
+      ex.jsPrefix = 'O'
+      ex.transitionEnd = 'oTransitionEnd';
+      return ex;
+    }
+    if(brw.Gecko) {
+      ex.cssPrefix = '-moz-';
+      ex.jsPrefix = 'Moz';
+      ex.transitionEnd = 'transitionend';
+      return ex;
+    }
+    if(brw.WebKit) {
+      ex.cssPrefix = '-webkit-';
+      ex.jsPrefix = 'webkit';
+      ex.transitionEnd = 'webkitTransitionEnd';
+      return ex;
+    }
+  })({
+    cssPrefix: '',
+    jsPrefix: '',
+    transitionEnd: 'transitionend'
+  });
+
+  /**
    *  Improved.BrowserFeatures
    *
    *  A collection of [[Boolean]] values indicating the presence of specific

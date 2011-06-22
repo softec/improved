@@ -2284,7 +2284,8 @@ Element.Methods = {
    **/
   getStyle: function(element, style) {
     element = $(element);
-    style = style == 'float' ? 'cssFloat' : style.camelize();
+    style = style.camelize();
+    style = Element._styleTranslations[style] || style;
     var value = element.style[style];
     if (!value || value == 'auto') {
       var css = document.defaultView.getComputedStyle(element, null);
@@ -2352,10 +2353,7 @@ Element.Methods = {
     }
     for (var property in styles)
       if (property == 'opacity') element.setOpacity(styles[property]);
-      else
-        elementStyle[(property == 'float' || property == 'cssFloat') ?
-          (Object.isUndefined(elementStyle.styleFloat) ? 'cssFloat' : 'styleFloat') :
-            property] = styles[property];
+      else elementStyle[Element._styleTranslations[property] || property] = styles[property];
 
     return element;
   },
@@ -2719,6 +2717,31 @@ Element._attributeTranslations = {
   }
 };
 
+Element._styleTranslations = (function(translation) {
+  var prefix = Improved.BrowserExtensions.jsPrefix,
+      elDocStyle = document.documentElement.style, proprietaryStyle;
+  $w('animation animationDelay animationDirection animationDuration animationFillMode animationIterationCount'
+      + ' animationName animationPlayState animationTimingFunction appearance backgroundClip backgroundOrigin'
+      + ' backgroundSize borderBottomLeftRadius borderBottomRightRadius'
+      + ' borderEnd borderEndColor borderEndStyle borderEndWidth borderImage borderRadius borderStart borderStartColor'
+      + ' borderStartStyle borderStartWidth borderTopLeftRadius borderTopRightRadius boxAlign boxDirection boxFlex'
+      + ' boxOrdinalGroup boxOrient boxPack boxShadow boxSizing columnCount columnGap columnRule columnRuleColor'
+      + ' columnRuleStyle columnRuleWidth columnSpan columnWidth columns marginEnd marginStart opacity overflowX'
+      + ' overflowY paddingEnd paddingStart perspective perpectiveOrigin textOverflow transform transformOrigin'
+      + ' transformStyle transition transitionDelay transitionDuration transitionProperty transitionTimingFunction'
+      + ' wordBreak wordWrap').each(function(style) {
+    if( !(style in elDocStyle) ) {
+      proprietaryStyle = prefix + style.charAt(0).toUpperCase() + style.substring(1);
+      if( proprietaryStyle in elDocStyle ) {
+        translation[style] = proprietaryStyle;
+      }
+    }
+  });
+  return translation;
+})({
+  'float': 'cssFloat'
+});
+
 if (Improved.Browser.Opera) {
   Element.Methods.getStyle = Element.Methods.getStyle.wrap(
     function(proceed, element, style) {
@@ -2761,13 +2784,21 @@ if (Improved.Browser.Opera) {
 }
 
 else if (Improved.Browser.IE) {
+
+  Element._styleTranslations = (function(translation) {
+    translation['float'] = translation['cssFloat'] = 'styleFloat';
+
+    return translation;
+  })(Element._styleTranslations);
+
   Element.Methods.getStyle = function(element, style) {
     element = $(element);
-    style = (style == 'float' || style == 'cssFloat') ? 'styleFloat' : style.camelize();
+    style = style.camelize();
+    style = Element._styleTranslations[style] || style;
     var value = element.style[style];
     if (!value && element.currentStyle) value = element.currentStyle[style];
 
-    if (style == 'opacity') {
+    if (style == 'opacity' && Improved.Browser.IEVersion < 9) {
       if (value = (element.getStyle('filter') || '').match(/alpha\(opacity=(.*)\)/))
         if (value[1]) return parseFloat(value[1]) / 100;
       return 1.0;
@@ -2781,26 +2812,28 @@ else if (Improved.Browser.IE) {
     return value;
   };
 
-  Element.Methods.setOpacity = function(element, value) {
-    function stripAlpha(filter){
-      return filter.replace(/alpha\([^\)]*\)/gi,'');
-    }
-    element = $(element);
-    var currentStyle = element.currentStyle;
-    if ((currentStyle && !currentStyle.hasLayout) ||
-      (!currentStyle && element.style.zoom == 'normal'))
-        element.style.zoom = 1;
+  if (Improved.Browser.IEVersion < 9) {
+    Element.Methods.setOpacity = function(element, value) {
+      function stripAlpha(filter){
+        return filter.replace(/alpha\([^\)]*\)/gi,'');
+      }
+      element = $(element);
+      var currentStyle = element.currentStyle;
+      if ((currentStyle && !currentStyle.hasLayout) ||
+        (!currentStyle && element.style.zoom == 'normal'))
+          element.style.zoom = 1;
 
-    var filter = element.getStyle('filter'), style = element.style;
-    if (value == 1 || value === '') {
-      (filter = stripAlpha(filter)) ?
-        style.filter = filter : style.removeAttribute('filter');
+      var filter = element.getStyle('filter'), style = element.style;
+      if (value == 1 || value === '') {
+        (filter = stripAlpha(filter)) ?
+          style.filter = filter : style.removeAttribute('filter');
+        return element;
+      } else if (value < 0.00001) value = 0;
+      style.filter = stripAlpha(filter) +
+        'alpha(opacity=' + (value * 100) + ')';
       return element;
-    } else if (value < 0.00001) value = 0;
-    style.filter = stripAlpha(filter) +
-      'alpha(opacity=' + (value * 100) + ')';
-    return element;
-  };
+    };
+  }
 
   Element._attributeTranslations = (function(){
 
@@ -2971,13 +3004,27 @@ else if (Improved.Browser.IE) {
 
 }
 
-else if (Improved.Browser.Gecko && /rv:1\.8\.0/.test(navigator.userAgent)) {
-  Element.Methods.setOpacity = function(element, value) {
-    element = $(element);
-    element.style.opacity = (value == 1) ? 0.999999 :
-      (value === '') ? '' : (value < 0.00001) ? 0 : value;
-    return element;
-  };
+else if (Improved.Browser.Gecko) {
+
+  Element._styleTranslations = (function(translation) {
+    if( !('borderRadius' in document.documentElement.style) ) {
+      translation['borderRadius']='MozBorderRadius';
+      translation['borderTopLeftRadius']='MozBorderRadiusTopleft';
+      translation['borderTopRightRadius']='MozBorderRadiusTopright';
+      translation['borderBottomLeftRadius']='MozBorderRadiusBottomleft';
+      translation['borderBottomRightRadius']='MozBorderRadiusBottomright';
+    }
+    return translation;
+  })(Element._styleTranslations);
+
+  if( /rv:1\.8\.0/.test(navigator.userAgent) ) {
+    Element.Methods.setOpacity = function(element, value) {
+      element = $(element);
+      element.style.opacity = (value == 1) ? 0.999999 :
+        (value === '') ? '' : (value < 0.00001) ? 0 : value;
+      return element;
+    };
+  }
 }
 
 else if (Improved.Browser.WebKit) {
