@@ -979,7 +979,9 @@
       }
     }
 
-    if( Improved.Browser.Gecko ) size.width += 1;
+    if( Improved.Browser.Gecko
+        || (Improved.Browser.IE && Improved.Browser.IEVersion>8))
+      size.width += 1;
 
     return size;
   }
