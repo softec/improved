@@ -59,7 +59,7 @@ describe('Element', function()
     expect(testdiv.text()).toEqual('<b>tagtest</b>');
   });
 
-  it('can remove styles', function()
+  xit('can remove styles', function()
   {
     var testdiv = $('testdiv');
 

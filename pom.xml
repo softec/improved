@@ -177,6 +177,49 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>titanium</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo.javascript</groupId>
+            <artifactId>javascript-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>titanium-compile</id>
+                <phase>compile</phase>
+                <goals>
+                  <goal>compile</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${project.build.directory}/titanium-scripts</outputDirectory>
+                  <descriptor>${basedir}/src/assembler/${project.artifactId}-titanium.xml</descriptor>
+                  <excludes>
+                    <exclude>deprecated.js</exclude>
+                    <exclude>ajax/jsonp_transport.js</exclude>
+                    <exclude>ajax/periodical_updater.js</exclude>
+                    <exclude>ajax/updater.js</exclude>
+                    <exclude>dom/*.js</exclude>
+                  </excludes>
+                </configuration>
+              </execution>
+              <execution>
+                <id>package-titanium</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>package</goal>
+                </goals>
+                <configuration>
+                  <scriptsDirectory>${project.build.directory}/titanium-scripts</scriptsDirectory>
+                  <classifier>titanium</classifier>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <repositories>

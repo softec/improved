@@ -22,8 +22,9 @@ describe('Improved - Error', function()
       objectType = 'Object',
       klassType = (new Class.create()).functionName(),
       objectString = String({}),
-      isStringName = Object.isString.functionName();
-      isArrayName = Object.isArray.functionName();
+      isStringName = Object.isString.functionName(),
+      isArrayName = Object.isArray.functionName(),
+      isCallerSupported = Object.isFunction(arguments.callee.caller);
 
   beforeEach(function() { debug.setLevel(6); });
   afterEach(function() { debug.setLevel(5); });
@@ -57,8 +58,10 @@ describe('Improved - Error', function()
         }
       });
       expect(function(){(new Foo).testError()}).toThrow(new Error(klassType + ': Test Error (in: anotherMethod)'));
-      expect(function(){(new Bar).testError()}).toThrow(new Error('Bar: Test Error (in: testError)'));
-      expect(function(){(new FooBar).testError()}).toThrow(new Error('FooBar: Test Error (in: testError)'));
+      if( isCallerSupported ) {
+        expect(function(){(new Bar).testError()}).toThrow(new Error('Bar: Test Error (in: testError)'));
+        expect(function(){(new FooBar).testError()}).toThrow(new Error('FooBar: Test Error (in: testError)'));
+      }
     }
   });
 
@@ -86,10 +89,12 @@ describe('Improved - Error', function()
 
       expect(function(){throw Improved.TypeError(myType, {})})
           .toThrow(new Error("Unexpected type " + objectType + " for value " + objectString + " (expecting: myType)"));
-      expect(function(){(new Foo).testError()})
-          .toThrow(new Error(klassType + ": Unexpected type " + objectType + " in testError for value " + objectString + " (expecting: myType)"));
-      expect(function(){(new Bar).testError()})
-          .toThrow(new Error("Bar: Unexpected type " + objectType + " in testError for value " + objectString + " (expecting: myType)"));
+      if( isCallerSupported ) {
+        expect(function(){(new Foo).testError()})
+            .toThrow(new Error(klassType + ": Unexpected type " + objectType + " in testError for value " + objectString + " (expecting: myType)"));
+        expect(function(){(new Bar).testError()})
+            .toThrow(new Error("Bar: Unexpected type " + objectType + " in testError for value " + objectString + " (expecting: myType)"));
+      }
     }
   });
 
@@ -125,10 +130,12 @@ describe('Improved - Error', function()
     if( klassType === 'klass' ) {
       expect(function(){Improved.checkType(myType, {})})
           .toThrow(new Error("Unexpected type " + objectType + " for value " + objectString + " (expecting: myType)"));
-      expect(function(){(new Foo).testError()})
-          .toThrow(new Error(klassType + ": Unexpected type " + objectType + " in testError for value " + objectString + " (expecting: myType)"));
-      expect(function(){(new Bar).testError()})
-          .toThrow(new Error("Bar: Unexpected type " + objectType + " in testError for value " + objectString + " (expecting: myType)"));
+      if( isCallerSupported ) {
+        expect(function(){(new Foo).testError()})
+            .toThrow(new Error(klassType + ": Unexpected type " + objectType + " in testError for value " + objectString + " (expecting: myType)"));
+        expect(function(){(new Bar).testError()})
+            .toThrow(new Error("Bar: Unexpected type " + objectType + " in testError for value " + objectString + " (expecting: myType)"));
+      }
       expect(function(){
         Improved.checkType(Improved.nTypes(myType, Object.isString), {})})
           .toThrow(new Error("Unexpected type " + objectType + " for value " + objectString + " (expecting: myType | " + isStringName + ")"));
@@ -175,10 +182,12 @@ describe('Improved - Error', function()
     if( klassType === 'klass' ) {
       expect(function(){Improved.checkArrayType(myType, [{}])})
           .toThrow(new Error("Unexpected type " + objectType + " for value " + objectString + " (expecting: myType)"));
-      expect(function(){(new Foo).testError()})
-          .toThrow(new Error(klassType + ": Unexpected type " + objectType + " in testError for value " + objectString + " (expecting: myType)"));
-      expect(function(){(new Bar).testError()})
-          .toThrow(new Error("Bar: Unexpected type " + objectType + " in testError for value " + objectString + " (expecting: myType)"));
+      if( isCallerSupported ) {
+        expect(function(){(new Foo).testError()})
+            .toThrow(new Error(klassType + ": Unexpected type " + objectType + " in testError for value " + objectString + " (expecting: myType)"));
+        expect(function(){(new Bar).testError()})
+            .toThrow(new Error("Bar: Unexpected type " + objectType + " in testError for value " + objectString + " (expecting: myType)"));
+      }
       expect(function(){Improved.checkArrayType(Improved.nTypes(myType, Object.isString), [{}])})
           .toThrow(new Error("Unexpected type " + objectType + " for value " + objectString + " (expecting: myType | " + isStringName + ")"));
     }

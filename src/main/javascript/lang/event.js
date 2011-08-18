@@ -18,7 +18,7 @@
 
 (function () {
 
-  var Event = {};
+  var ImprovedEvent = {};
 
   function getEventRegistry(create) {
     return (this.__ipd2ev || ((create) ? (this.__ipd2ev = $H()) : null));
@@ -36,14 +36,14 @@
 
   function getOnce(handler){
     return function(responder,eventName) {
-      Event.removeListener(this, eventName, handler);
+      ImprovedEvent.removeListener(this, eventName, handler);
       return Function.bind.apply(responder,arguments)();
     }
   }
 
-  Event.addListener = function(object, eventName, handler, once) {
+  ImprovedEvent.addListener = function(object, eventName, handler, once) {
     if( Object.isString(object) || Object.isElement(object) ) {
-      return Event.observe(object, eventName, handler, once);
+      return ImprovedEvent.observe(object, eventName, handler, once);
     }
 
     var responders = getEventResponders.call(object,eventName,true);
@@ -62,9 +62,9 @@
     return object;
   };
 
-  Event.removeListener = function(object, eventName, handler) {
+  ImprovedEvent.removeListener = function(object, eventName, handler) {
     if( Object.isString(object) || Object.isElement(object) ) {
-      return Event.stopObserving(object, eventName, handler);
+      return ImprovedEvent.stopObserving(object, eventName, handler);
     }
 
     var registry = getEventRegistry.call(object);
@@ -99,9 +99,9 @@
     return object;
   };
 
-  Event.trigger = function(object, eventName) {
+  ImprovedEvent.trigger = function(object, eventName) {
     if( Object.isString(object) || Object.isElement(object) ) {
-      return Event.fire.apply(arguments);
+      return ImprovedEvent.fire.apply(arguments);
     }
 
     var responders = getEventResponders.call(object,eventName,false);
@@ -113,9 +113,9 @@
     while (i-- && !Function.bind.apply(responders[j++],arguments)());
   };
 
-  Event.triggerAsync = function(object, eventName) {
+  ImprovedEvent.triggerAsync = function(object, eventName) {
     if( Object.isString(object) || Object.isElement(object) ) {
-      return Event.fire.apply(arguments);
+      return ImprovedEvent.fire.apply(arguments);
     }
 
     var responders = getEventResponders.call(object,eventName,false);
@@ -128,9 +128,12 @@
   };
 
   // Export to the global scope.
-  if (window.Event) Object.extend(window.Event, Event);
-  else window.Event = Event;
-
+  try {
+    Object.extend(Event, ImprovedEvent);
+  } catch(e) {
+    Event = ImprovedEvent;
+  }
+  
   function getBindings(create) {
     return (this.__ipd2bind || ((create) ? (this.__ipd2bind = {}) : null));
   };
@@ -143,7 +146,7 @@
         binding.listener = listener;
       }
     } else {
-      Event.addListener(source, eventName, handler);
+      ImprovedEvent.addListener(source, eventName, handler);
     }
     return binding;
   };
@@ -156,7 +159,7 @@
         binding.source.removeListener(binding.eventName, binding.handler);
       }
     } else {
-      Event.removeListener(binding.source,binding.eventName,binding.handler);
+      ImprovedEvent.removeListener(binding.source,binding.eventName,binding.handler);
     }
   };
 
@@ -213,7 +216,7 @@
           if( this.trigger ) {
             this.trigger(eventName);
           } else {
-            Event.trigger(this,eventName);
+            ImprovedEvent.trigger(this,eventName);
           }
         }
       };
@@ -225,10 +228,10 @@
   });
 
   Object.extend(Object.Methods = Object.Methods || {}, {
-    addListener:    Event.addListener.methodize(),
-    removeListener: Event.removeListener.methodize(),
-    triggerAsync:   Event.triggerAsync.methodize(),
-    trigger:        Event.trigger.methodize(),
+    addListener:    ImprovedEvent.addListener.methodize(),
+    removeListener: ImprovedEvent.removeListener.methodize(),
+    triggerAsync:   ImprovedEvent.triggerAsync.methodize(),
+    trigger:        ImprovedEvent.trigger.methodize(),
     unbind:         Object.unbind.methodize(),
     unbindAll:      Object.unbindAll.methodize(),
     bindTo:         Object.bindTo.methodize()

@@ -232,7 +232,7 @@ Object.extend(Function.prototype, (function() {
   function bindAsEventListener() {
     var __method = this, args = arguments, context = args[0];
     return function(event) {
-      args[0] = event || window.event;
+      args[0] = event || (!Improved.titanium && window.event);
       var result = __method.apply(context, args);
       args[0] = context;
       return result;
@@ -307,7 +307,7 @@ Object.extend(Function.prototype, (function() {
   **/
   function delayNoConv(timeout) {
     var __method = this, args = arguments;
-    return window.setTimeout(function() {
+    return /*window.*/setTimeout(function() {
       return __method.apply(this, unshiftSlice(arguments,args,1));
     }, timeout*1000);
   }
@@ -315,7 +315,7 @@ Object.extend(Function.prototype, (function() {
   function delayConv() {
     var __method = this, args = [];
     push.apply(args,arguments);
-    return window.setTimeout(function() {
+    return /*window.*/setTimeout(function() {
       return __method.apply(this, args);
     }, args.shift()*1000);
   }
@@ -347,7 +347,7 @@ Object.extend(Function.prototype, (function() {
   **/
   function defer() {
     var __method = this, args = arguments;
-    return window.setTimeout(function() {
+    return /*window.*/setTimeout(function() {
       return __method.apply(this, args);
     }, 10);
   }
@@ -493,7 +493,7 @@ Object.extend(Function.prototype, (function() {
     return object;
   }
 
-  var ieOperaAndroid = Improved.Browser.Opera || (Improved.Browser.IE && !Improved.Browser.IE9) || (Improved.Device.Android && Improved.Browser.WebKit);
+  var ieOperaAndroid = !Improved.titanium && (Improved.Browser.Opera || (Improved.Browser.IE && !Improved.Browser.IE9) || (Improved.Device.Android && Improved.Browser.WebKit));
 
   return {
     functionName:        functionName,

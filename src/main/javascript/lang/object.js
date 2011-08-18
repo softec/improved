@@ -58,7 +58,7 @@
       STRING_CLASS = '[object String]',
       ARRAY_CLASS = '[object Array]',
       DATE_CLASS = '[object Date]',
-      NATIVE_JSON_STRINGIFY_SUPPORT = window.JSON &&
+      NATIVE_JSON_STRINGIFY_SUPPORT = (Improved.titanium || window.JSON) &&
         typeof JSON.stringify === 'function' &&
         JSON.stringify(0) === '0' &&
         typeof JSON.stringify(Improved.K) === 'undefined';

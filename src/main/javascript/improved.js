@@ -71,62 +71,185 @@ var Improved = (function (Improved) {
   **/
   Improved.Version = '1.0';
 
-  Improved.UserAgent = navigator.userAgent.toLowerCase();
+  /**
+   *  Improved.titanium -> Titanium API
+   *
+   *  Check and return the Titanium API if available
+  **/
+  try {
+    Improved.titanium = Titanium;
+  } catch(e) {};
 
   /**
-   *  Improved.Browser
+   *  Improved.userAgent -> String
    *
-   *  A collection of [[Boolean]] values indicating the browser which is
-   *  currently in use. Available properties are `IE`, `IE9`, `Opera`, 
-   *  `WebKit`, `MobileSafari`, `Gecko`, `OperaMobile`, `OperaMini`,
-   *  `Symbian`, `BlackBerry`, `Palm`, `WindowsMobile`, `WindowsPhone`,
-   *  `WebOS`, `Maemo`, `NetFront` and `Bada`.
-   *
-   *  If Improved.Browser.IE is true, then you also get
-   *  Improved.Browser.IEVersion, which will contain an integer value
-   *  representing the version of IE detected.
-   *
-   *  Example
-   *
-   *      Improved.Browser.IE;
-   *      //-> true, when executed in any IE browser.
-   *
-   *      Improved.Browser.IEVersion;
-   *      //-> 8, when executed in Internet Explorer 8
+   *  The user agent of the current running engine
   **/
-  var brw = Improved.Browser = (function(){
-    var ua = Improved.UserAgent;
-    var isOpera = Object.prototype.toString.call(window.opera) == '[object Opera]';
-    return {
-      IE:             !isOpera && !!window.attachEvent,
-      Opera:          isOpera,
-      WebKit:         ua.indexOf('applewebkit/') > -1,
-      Gecko:          ua.indexOf('gecko') > -1 && ua.indexOf('khtml') === -1,
-      MobileSafari:   /apple.*mobile.*safari/.test(ua),
-      OperaMobile:    isOpera && ua.indexOf('mobi') > -1,
-      OperaMini:      isOpera && ua.indexOf('mini') > -1,
-      Symbian:        ua.indexOf('symbian') > -1 || ua.indexOf('series') > -1,
-      BlackBerry:     ua.indexOf('blackberry') > -1  || ua.indexOf('vnd.rim') > -1,
-      Palm:           ua.indexOf('palm') > -1 || ua.indexOf('blazer') > -1 || ua.indexOf('xiino') > -1,
-      WindowsMobile:  !isOpera && !!window.attachEvent && (ua.indexOf('windows ce') > -1 || ua.indexOf('iemobile') > -1 || ua.indexOf('wm5 pie') > -1 || ua.indexOf('htc') > -1),
-      WindowsPhone:   ua.indexOf('windows phone') > -1,
-      WebOS:          ua.indexOf('webos') > -1,
-      Maemo:          !isOpera && ua.indexOf('maemo') > -1,
-      NetFront:       ua.indexOf('netfront') > -1,
-      OpenWave:       ua.indexOf('up.browser') > -1,
-      Bada:           ua.indexOf('bada') > -1,
-      DoCoMo:         ua.indexOf('docomo') > -1,
-      Wap:            ua.indexOf('wap') > -1,
-      Wap2:           ua.indexOf('wap2') > -1
-    }
-  })();
+  Improved.UserAgent = ((Improved.titanium && Improved.titanium.userAgent)
+                        || navigator.userAgent).toLowerCase();
 
-  if( brw.IE ) {
-    var ie = (function(){
-    var v = 3, div = document.createElement('div'), all = div.getElementsByTagName('i');
-    while ( div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->', all[0] );
-    return v;}());
-    if( ie > 4 ) brw.IEVersion = ie;
+  if( !Improved.titanium ) {
+    /**
+     *  Improved.Browser
+     *
+     *  A collection of [[Boolean]] values indicating the browser which is
+     *  currently in use. Available properties are `IE`, `IE9`, `Opera`,
+     *  `WebKit`, `MobileSafari`, `Gecko`, `OperaMobile`, `OperaMini`,
+     *  `Symbian`, `BlackBerry`, `Palm`, `WindowsMobile`, `WindowsPhone`,
+     *  `WebOS`, `Maemo`, `NetFront` and `Bada`.
+     *
+     *  If Improved.Browser.IE is true, then you also get
+     *  Improved.Browser.IEVersion, which will contain an integer value
+     *  representing the version of IE detected.
+     *
+     *  Example
+     *
+     *      Improved.Browser.IE;
+     *      //-> true, when executed in any IE browser.
+     *
+     *      Improved.Browser.IEVersion;
+     *      //-> 8, when executed in Internet Explorer 8
+    **/
+    var brw = Improved.Browser = (function(){
+      var ua = Improved.UserAgent;
+      var isOpera = Object.prototype.toString.call(window.opera) == '[object Opera]';
+      return {
+        IE:             !isOpera && !!window.attachEvent,
+        Opera:          isOpera,
+        WebKit:         ua.indexOf('applewebkit/') > -1,
+        Gecko:          ua.indexOf('gecko') > -1 && ua.indexOf('khtml') === -1,
+        MobileSafari:   /apple.*mobile.*safari/.test(ua),
+        OperaMobile:    isOpera && ua.indexOf('mobi') > -1,
+        OperaMini:      isOpera && ua.indexOf('mini') > -1,
+        Symbian:        ua.indexOf('symbian') > -1 || ua.indexOf('series') > -1,
+        BlackBerry:     ua.indexOf('blackberry') > -1  || ua.indexOf('vnd.rim') > -1,
+        Palm:           ua.indexOf('palm') > -1 || ua.indexOf('blazer') > -1 || ua.indexOf('xiino') > -1,
+        WindowsMobile:  !isOpera && !!window.attachEvent && (ua.indexOf('windows ce') > -1 || ua.indexOf('iemobile') > -1 || ua.indexOf('wm5 pie') > -1 || ua.indexOf('htc') > -1),
+        WindowsPhone:   ua.indexOf('windows phone') > -1,
+        WebOS:          ua.indexOf('webos') > -1,
+        Maemo:          !isOpera && ua.indexOf('maemo') > -1,
+        NetFront:       ua.indexOf('netfront') > -1,
+        OpenWave:       ua.indexOf('up.browser') > -1,
+        Bada:           ua.indexOf('bada') > -1,
+        DoCoMo:         ua.indexOf('docomo') > -1,
+        Wap:            ua.indexOf('wap') > -1,
+        Wap2:           ua.indexOf('wap2') > -1
+      }
+    })();
+
+    if( brw.IE ) {
+      var ie = (function(){
+      var v = 3, div = document.createElement('div'), all = div.getElementsByTagName('i');
+      while ( div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->', all[0] );
+      return v;}());
+      if( ie > 4 ) brw.IEVersion = ie;
+    }
+
+    /**
+     *  Improved.BrowserExtensions
+     *
+     *  Provide constants for browser extensions, like -moz- and -webkit-.
+     *  Improved.BrowserExtensions.cssPrefix is for CSS
+     *  Improved.BrowserExtensions.jsPrefix is for CSS manipulation in JavaScript
+     *  Improved.BrowserExtensions.transitionEnd is the name of the transitionEnd event.
+    **/
+    Improved.BrowserExtensions = (function(ex){
+      if(brw.IE) {
+        if (brw.IEVersion >= 9) {
+          ex.cssPrefix = '-ms-';
+          ex.jsPrefix = 'ms';
+        }
+        return ex;
+      }
+      if(brw.Opera) {
+        ex.cssPrefix = '-o-';
+        ex.jsPrefix = 'O'
+        ex.transitionEnd = 'oTransitionEnd';
+        return ex;
+      }
+      if(brw.Gecko) {
+        ex.cssPrefix = '-moz-';
+        ex.jsPrefix = 'Moz';
+        ex.transitionEnd = 'transitionend';
+        return ex;
+      }
+      if(brw.WebKit) {
+        ex.cssPrefix = '-webkit-';
+        ex.jsPrefix = 'webkit';
+        ex.transitionEnd = 'webkitTransitionEnd';
+        return ex;
+      }
+    })({
+      cssPrefix: '',
+      jsPrefix: '',
+      transitionEnd: 'transitionend'
+    });
+
+    /**
+     *  Improved.BrowserFeatures
+     *
+     *  A collection of [[Boolean]] values indicating the presence of specific
+     *  browser features.
+    **/
+    Improved.BrowserFeatures = {
+      /**
+       *  Improved.BrowserFeatures.XPath -> Boolean
+       *
+       *  Used internally to detect if the browser supports
+       *  [DOM Level 3 XPath](http://www.w3.org/TR/DOM-Level-3-XPath/xpath.html).
+      **/
+      XPath: !!document.evaluate,
+
+      /**
+       *  Improved.BrowserFeatures.SelectorsAPI -> Boolean
+       *
+       *  Used internally to detect if the browser supports the
+       *  [NodeSelector API](http://www.w3.org/TR/selectors-api/#nodeselector).
+      **/
+      SelectorsAPI: !!document.querySelector,
+
+      /**
+       *  Improved.BrowserFeatures.ElementExtensions -> Boolean
+       *
+       *  Used internally to detect if the browser supports extending html element
+       *  prototypes.
+      **/
+      ElementExtensions: (function() {
+        var constructor = window.Element || window.HTMLElement;
+        return !!(constructor && constructor.prototype);
+      })(),
+      SpecificElementExtensions: (function() {
+        if (brw.MobileSafari)
+          return false;
+
+        if (typeof window.HTMLDivElement !== 'undefined')
+          return true;
+
+        var div = document.createElement('div');
+        var form = document.createElement('form');
+        var isSupported = false;
+
+        if (div['__proto__'] && (div['__proto__'] !== form['__proto__'])) {
+          isSupported = true;
+        }
+
+        div = form = null;
+
+        return isSupported;
+      })(),
+      VML: (function() {
+        if( typeof document.namespaces === 'undefined' ) return false;
+        if( typeof document.namespaces['v'] !== 'undefined' ) return true;
+      })(),
+      addVMLSupport: function() {
+        var self = Improved.BrowserFeatures;
+        if( typeof document.namespaces === 'undefined' ) return (self.VML = false);
+        if( typeof document.namespaces['v'] !== 'undefined' ) return (self.VML = true);
+
+        document.namespaces.add('v', 'urn:schemas-microsoft-com:vml', "#default#VML");
+        return (self.VML = true);
+      }
+    };
   }
 
   /**
@@ -169,112 +292,6 @@ var Improved = (function (Improved) {
             || Improved.UserAgent.indexOf('phone') > -1 || screen.width < 480;
 
   dev.SmartPhone = dev.iPhone || dev.Android || brw.MobileSafari || brw.WindowsPhone;
-
-  /**
-   *  Improved.BrowserExtensions
-   *
-   *  Provide constants for browser extensions, like -moz- and -webkit-.
-   *  Improved.BrowserExtensions.cssPrefix is for CSS
-   *  Improved.BrowserExtensions.jsPrefix is for CSS manipulation in JavaScript
-   *  Improved.BrowserExtensions.transitionEnd is the name of the transitionEnd event.
-  **/
-  Improved.BrowserExtensions = (function(ex){
-    if(brw.IE) {
-      if (brw.IEVersion >= 9) {
-        ex.cssPrefix = '-ms-';
-        ex.jsPrefix = 'ms';
-      }
-      return ex;
-    }
-    if(brw.Opera) {
-      ex.cssPrefix = '-o-';
-      ex.jsPrefix = 'O'
-      ex.transitionEnd = 'oTransitionEnd';
-      return ex;
-    }
-    if(brw.Gecko) {
-      ex.cssPrefix = '-moz-';
-      ex.jsPrefix = 'Moz';
-      ex.transitionEnd = 'transitionend';
-      return ex;
-    }
-    if(brw.WebKit) {
-      ex.cssPrefix = '-webkit-';
-      ex.jsPrefix = 'webkit';
-      ex.transitionEnd = 'webkitTransitionEnd';
-      return ex;
-    }
-  })({
-    cssPrefix: '',
-    jsPrefix: '',
-    transitionEnd: 'transitionend'
-  });
-
-  /**
-   *  Improved.BrowserFeatures
-   *
-   *  A collection of [[Boolean]] values indicating the presence of specific
-   *  browser features.
-  **/
-  Improved.BrowserFeatures = {
-    /**
-     *  Improved.BrowserFeatures.XPath -> Boolean
-     *
-     *  Used internally to detect if the browser supports
-     *  [DOM Level 3 XPath](http://www.w3.org/TR/DOM-Level-3-XPath/xpath.html).
-    **/
-    XPath: !!document.evaluate,
-
-    /**
-     *  Improved.BrowserFeatures.SelectorsAPI -> Boolean
-     *
-     *  Used internally to detect if the browser supports the
-     *  [NodeSelector API](http://www.w3.org/TR/selectors-api/#nodeselector).
-    **/
-    SelectorsAPI: !!document.querySelector,
-
-    /**
-     *  Improved.BrowserFeatures.ElementExtensions -> Boolean
-     *
-     *  Used internally to detect if the browser supports extending html element
-     *  prototypes.
-    **/
-    ElementExtensions: (function() {
-      var constructor = window.Element || window.HTMLElement;
-      return !!(constructor && constructor.prototype);
-    })(),
-    SpecificElementExtensions: (function() {
-      if (brw.MobileSafari)
-        return false;
-
-      if (typeof window.HTMLDivElement !== 'undefined')
-        return true;
-
-      var div = document.createElement('div');
-      var form = document.createElement('form');
-      var isSupported = false;
-
-      if (div['__proto__'] && (div['__proto__'] !== form['__proto__'])) {
-        isSupported = true;
-      }
-
-      div = form = null;
-
-      return isSupported;
-    })(),
-    VML: (function() {
-      if( typeof document.namespaces === 'undefined' ) return false;
-      if( typeof document.namespaces['v'] !== 'undefined' ) return true;
-    })(),
-    addVMLSupport: function() {
-      var self = Improved.BrowserFeatures;
-      if( typeof document.namespaces === 'undefined' ) return (self.VML = false);
-      if( typeof document.namespaces['v'] !== 'undefined' ) return (self.VML = true);
-
-      document.namespaces.add('v', 'urn:schemas-microsoft-com:vml', "#default#VML");
-      return (self.VML = true);
-    }
-  };
 
   Improved.ScriptFragment = '<script[^>]*>([\\S\\s]*?)<\/script>';
   Improved.JSONFilter = /^\/\*-secure-([\s\S]*)\*\/\s*$/;

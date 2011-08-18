@@ -22,7 +22,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+if( !Improved.titanium ) {
+
 describe('Ajax', function() {
+
   var content, content2,
       // lowercase comparison because of MSIE which presents HTML tags in uppercase
       sentence = ("Pack my box with <em>five dozen</em> liquor jugs! " +
@@ -395,3 +398,200 @@ describe('Ajax', function() {
     }));
   });
 })
+
+} else {
+
+describe('Ajax', function() {
+  var content, content2,
+      // lowercase comparison because of MSIE which presents HTML tags in uppercase
+      sentence = ("Pack my box with <em>five dozen</em> liquor jugs! " +
+                  "Oh, how <strong>quickly</strong> daft jumping zebras vex...").toLowerCase();
+
+  beforeEach(function() {
+    ajaxtest = {};
+    this.addMatchers({
+      toBeInstanceOf: function(klass) { return this.actual instanceof klass; }
+    });
+});
+
+  afterEach(function() {
+    // hack to cleanup responders
+    Ajax.Responders.responders = [Ajax.Responders.responders[0]];
+    ajaxtest = undefined;
+  });
+
+  function extendDefault(options) {
+    return Object.extend({
+      asynchronous: true,
+      method: 'get',
+      onException: function(r, e) { throw e; }
+    }, options);
+  };
+
+  it('can execute asynchronous resquest', function() {
+    expect(ajaxtest.response).not.toBeDefined();
+
+    runs(function() {
+      expect(Ajax.activeRequestCount).toEqual(0);
+      new Ajax.Request("http://carto.softec.lu/resources/js/test/hello.js", extendDefault({
+        evalJS: 'force'
+      }));
+      expect(Ajax.activeRequestCount).toEqual(1);
+    });
+
+    waitsFor(function() { return !Ajax.activeRequestCount;}, 'Wait for Ajax request to complete');
+
+    runs(function() {
+      expect(Ajax.activeRequestCount).toEqual(0);
+      expect(ajaxtest.response).toEqual('hello');
+    });
+  });
+
+  it('can properly manage multiple responders', function() {
+    var responder = {
+      onCreate:   jasmine.createSpy('onCreate responder'),
+      onLoading:  jasmine.createSpy('onLoading responder'),
+      onComplete: jasmine.createSpy('onComplete responder')
+    };
+
+    runs(function() {
+      // check for internal responder
+      expect(Ajax.Responders.responders.length).toEqual(1);
+
+      var dummyResponder = {
+        onComplete: Improved.emptyFunction
+      };
+
+      Ajax.Responders.register(dummyResponder);
+      expect(Ajax.Responders.responders.length).toEqual(2);
+
+      // don't add twice
+      Ajax.Responders.register(dummyResponder);
+      expect(Ajax.Responders.responders.length).toEqual(2);
+
+      Ajax.Responders.unregister(dummyResponder);
+      expect(Ajax.Responders.responders.length).toEqual(1);
+
+      Ajax.Responders.register(responder);
+
+      expect(Ajax.activeRequestCount).toEqual(0);
+      new Ajax.Request("http://carto.softec.lu/resources/js/test/content.html", extendDefault({parameters:"pet=monkey"}));
+      expect(Ajax.activeRequestCount).toEqual(1);
+      expect(responder.onCreate).toHaveBeenCalled();
+    });
+
+    waitsFor(function() { return !Ajax.activeRequestCount;}, 'Wait for Ajax request to complete');
+
+    runs(function() {
+      expect(responder.onLoading).toHaveBeenCalled();
+      expect(responder.onComplete).toHaveBeenCalled();
+    });
+  });
+
+  it('calls onComplete after script evaluation', function() {
+    runs(function() {
+      expect(ajaxtest.response).not.toBeDefined();
+
+      expect(Ajax.activeRequestCount).toEqual(0);
+      new Ajax.Request("http://carto.softec.lu/resources/js/test/hello.js", extendDefault({
+        evalJS: 'force',
+        onComplete: function(response) { expect(ajaxtest.response).toEqual('hello'); }.bind(this)
+      }));
+    });
+
+    waitsFor(function() { return !Ajax.activeRequestCount;}, 'Wait for Ajax request to complete');
+
+    runs(function() {
+      expect(Ajax.activeRequestCount).toEqual(0);
+      expect(ajaxtest.response).toEqual('hello');
+    });
+  });
+
+  it('expose call onCreate and onComplete appropriatly', function() {
+    runs(function() {
+      new Ajax.Request("http://carto.softec.lu/resources/js/test/content.html", extendDefault({
+        onCreate: function(transport) { expect(transport.readyState).toEqual(0) }.bind(this),
+        onComplete: function(transport) { expect(transport.readyState).not.toEqual(0) }.bind(this)
+      }));
+    });
+    waitsFor(function() { return !Ajax.activeRequestCount;}, 'Wait for Ajax request to complete');
+  });
+
+  it('expose call onCreate and onComplete appropriatly', function() {
+    runs(function() {
+      expect(ajaxtest.response).not.toBeDefined();
+      new Ajax.Request("http://carto.softec.lu/resources/js/test/hello.js", extendDefault({
+        evalJS: 'force',
+        onComplete: function(transport) {
+          expect(ajaxtest.response).toEqual('hello');
+        }.bind(this)
+      }));
+    });
+
+    waitsFor(function() { return !Ajax.activeRequestCount;}, 'Wait for Ajax request to complete');
+
+    runs(function() {
+      delete ajaxtest.response;
+      new Ajax.Request("http://carto.softec.lu/resources/js/test/hello.js", extendDefault({
+        evalJS: false,
+        onComplete: function(transport) {
+          expect(ajaxtest.response).not.toBeDefined();
+        }.bind(this)
+      }));
+    });
+
+    waitsFor(function() { return !Ajax.activeRequestCount;}, 'Wait for Ajax request to complete');
+  });
+
+  it('calls all callbacks with response', function() {
+    var options = extendDefault({
+      onCreate: jasmine.createSpy('onCreate Spy')
+    });
+
+    runs(function() {
+      Ajax.Request.Events.each(function(state){
+        options['on' + state] = jasmine.createSpy('on' + state + ' Spy');
+      });
+
+      new Ajax.Request("http://carto.softec.lu/resources/js/test/content.html", options);
+    });
+
+    waitsFor(function() { return !Ajax.activeRequestCount;}, 'Wait for Ajax request to complete');
+
+    runs(function() {
+      expect(options['onCreate']).toHaveBeenCalled();
+      expect(options['onCreate'].mostRecentCall.args[0]).toBeInstanceOf(Ajax.Response);
+      Ajax.Request.Events.each(function(state){
+        if(options['on' + state].callCount > 0) {
+          expect(options['on' + state].mostRecentCall.args[0]).toBeInstanceOf(Ajax.Response);
+        }
+      });
+    });
+  });
+
+  it('have a response that contains proper data', function() {
+    runs(function() {
+      new Ajax.Request("http://carto.softec.lu/resources/js/test/empty.html", extendDefault({
+        onComplete: function(transport) { expect(transport.responseText).toEqual('') }.bind(this)
+      }));
+      new Ajax.Request("http://carto.softec.lu/resources/js/test/content.html", extendDefault({
+        onComplete: function(transport) { expect(transport.responseText.strip().toLowerCase()).toEqual(sentence) }.bind(this)
+      }));
+    });
+
+    waitsFor(function() { return !Ajax.activeRequestCount;}, 'Wait for Ajax request to complete');
+  });
+
+  it('parse JSON response properly', function() {
+    runs(function() {
+      new Ajax.Request("http://carto.softec.lu/resources/js/test/data.json", extendDefault({
+        evalJSON: 'force',
+        onComplete: function(transport) { expect(transport.responseJSON.test).toEqual(123); }.bind(this)
+      }));
+    });
+
+    waitsFor(function() { return !Ajax.activeRequestCount;}, 'Wait for Ajax request to complete');
+  });
+});
+
+}

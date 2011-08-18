@@ -106,75 +106,75 @@ describe('Function', function()
 
   it('can be called after a delay', function()
   {
-    var delayedFunction = jasmine.createSpy().andCallFake(function() { window.delayed = true; });
+    var delayedFunction = jasmine.createSpy().andCallFake(function() { /*window.*/delayed = true; });
 
     runs(function () {
-      window.delayed = undefined;
+      /*window.*/delayed = undefined;
       delayedFunction.delay(0.8);
-      expect(window.delayed).not.toBeDefined()
+      expect(/*window.*/delayed).not.toBeDefined()
     });
 
-    waitsFor(function() { return !!window.delayed; });
+    waitsFor(function() { return !!/*window.*/delayed; });
 
     runs(function () {
       expect(delayedFunction).toHaveBeenCalled();
       delayedFunction.reset();
-      window.delayed = undefined;
+      /*window.*/delayed = undefined;
       delayedFunction.delay(0.8,'args1','args2');
-      expect(window.delayed).not.toBeDefined()
+      expect(/*window.*/delayed).not.toBeDefined()
     });
 
-    waitsFor(function() { return !!window.delayed; });
+    waitsFor(function() { return !!/*window.*/delayed; });
 
     runs(function () {
       expect(delayedFunction).toHaveBeenCalledWith('args1','args2');
       delayedFunction.reset();
-      window.delayed = undefined;
+      /*window.*/delayed = undefined;
       delayedFunction.delay(0.8,1);
-      expect(window.delayed).not.toBeDefined()
+      expect(/*window.*/delayed).not.toBeDefined()
     });
 
-    waitsFor(function() { return !!window.delayed; });
+    waitsFor(function() { return !!/*window.*/delayed; });
 
     runs(function () {
       expect(delayedFunction).toHaveBeenCalledWith(1);
-      window.delayed = undefined;
+      /*window.*/delayed = undefined;
     });  });
 
   it('can be called after a short delay (defer)', function()
   {
-    var deferedFunction = jasmine.createSpy().andCallFake(function() { window.defered = true; });
+    var deferedFunction = jasmine.createSpy().andCallFake(function() { /*window.*/defered = true; });
 
     runs(function () {
-      window.delayed = undefined;
+      /*window.*/defered = undefined;
       deferedFunction.defer();
-      expect(window.defered).not.toBeDefined()
+      expect(/*window.*/defered).not.toBeDefined()
     });
 
-    waitsFor(function() { return !!window.defered; });
+    waitsFor(function() { return !!/*window.*/defered; });
 
     runs(function () {
       expect(deferedFunction).toHaveBeenCalled();
       deferedFunction.reset();
-      window.defered = undefined;
+      /*window.*/defered = undefined;
       deferedFunction.defer('args1','args2');
-      expect(window.defered).not.toBeDefined()
+      expect(/*window.*/defered).not.toBeDefined()
     });
 
-    waitsFor(function() { return !!window.defered; });
+    waitsFor(function() { return !!/*window.*/defered; });
 
     runs(function () {
       expect(deferedFunction).toHaveBeenCalledWith('args1','args2');
-      window.defered = undefined;
+      /*window.*/defered = undefined;
       deferedFunction.defer(1);
-      expect(window.defered).not.toBeDefined()
+      expect(/*window.*/defered).not.toBeDefined()
     });
 
-    waitsFor(function() { return !!window.defered; });
+    waitsFor(function() { return !!/*window.*/defered; });
 
     runs(function () {
       expect(deferedFunction).toHaveBeenCalledWith(1);
-      window.defered = undefined;
+      /*window.*/defered = undefined;
     });
   });
 

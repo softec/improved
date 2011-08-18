@@ -30,7 +30,9 @@ describe('Object', function()
      expect(Object.inspect(null)).toEqual('null');
      expect(Object.inspect('foo\\b\'ar')).toEqual("'foo\\\\b\\\'ar'");
      expect(Object.inspect([])).toEqual('[]');
-     expect(function() { Object.inspect(window.Node) }).not.toThrow();
+     if( !Improved.titanium ) {
+       expect(function() { Object.inspect(window.Node) }).not.toThrow();
+     }
   });
 
   it('can convert an Object to JSON', function() {

@@ -92,7 +92,7 @@ Ajax.Response = Class.create({
     var transport  = this.transport  = request.transport,
         readyState = this.readyState = transport.readyState;
 
-    if ((readyState > 2 && !(Improved.Browser.IE || this.transport.callback)) || readyState == 4) {
+    if ((readyState > 2 && !((!Improved.titanium && Improved.Browser.IE) || this.transport.callback)) || readyState == 4) {
       this.status       = this.getStatus();
       this.statusText   = this.getStatusText();
       this.responseText = String.interpret(transport.responseText);
@@ -100,7 +100,7 @@ Ajax.Response = Class.create({
     }
 
     if (readyState == 4) {
-      var xml = transport.responseXML;
+      var xml = transport.responseText && transport.responseText.startsWith(/ *</) && transport.responseXML;
       this.responseXML  = Object.isUndefined(xml) ? null : xml;
       this.responseJSON = this._getResponseJSON();
     }
