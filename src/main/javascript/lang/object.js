@@ -607,9 +607,9 @@
    * @return {String} the fully qualified name of its class
    */
   function getTypeFQName(object) {
-;;; if( !Object.isUndefined(object) && object.constructor && object.constructor.namespace ) {
-;;;   return object.constructor.namespace + '.' + getTypeName(object);
-;;; }
+/*debug*/ if( !Object.isUndefined(object) && object.constructor && object.constructor.namespace ) {
+/*debug*/   return object.constructor.namespace + '.' + getTypeName(object);
+/*debug*/ }
     return getTypeName(object);
   }
 

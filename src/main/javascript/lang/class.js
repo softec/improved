@@ -79,31 +79,31 @@ var Class = (function() {
   function create() {
     var parent = null,
         properties = $A(arguments);
-;;; var namesp = null, klassname = null;
+/*debug*/ var namesp = null, klassname = null;
 
     if (Object.isString(properties[0])) {
-;;;   klassname =
-        properties.shift();
-;;;   var i = klassname.lastIndexOf('.');
-;;;   if( i > 0 ) {
-;;;     namesp = klassname.substring(0,i);
-;;;     klassname = klassname.substring(++i);
-;;;   }
+/*debug*/ klassname =
+      properties.shift();
+/*debug*/ var i = klassname.lastIndexOf('.');
+/*debug*/ if( i > 0 ) {
+/*debug*/   namesp = klassname.substring(0,i);
+/*debug*/   klassname = klassname.substring(++i);
+/*debug*/ }
     }
 
     if (Object.isFunction(properties[0]))
       parent = properties.shift();
 
-;;; var klass;
-;;; if( klassname ) {
-;;;   klass = eval('klass = function ' + klassname + '() { return arguments.callee.prototype.initialize.apply(this, arguments); }');
-;;; } else {
-;;;   klass =
-        function klass() { return arguments.callee.prototype.initialize.apply(this, arguments); }
-;;; }
+/*debug*/ var klass;
+/*debug*/ if( klassname ) {
+/*debug*/   klass = eval('klass = function ' + klassname + '() { return arguments.callee.prototype.initialize.apply(this, arguments); }');
+/*debug*/ } else {
+/*debug*/   klass =
+      function klass() { return arguments.callee.prototype.initialize.apply(this, arguments); }
+/*debug*/ }
 
     Object.extend(klass, Class.Methods);
-;;; if( namesp ) klass.namespace = namesp;
+/*debug*/ if( namesp ) klass.namespace = namesp;
     klass.superclass = parent;
     klass.subclasses = [];
 
@@ -123,28 +123,28 @@ var Class = (function() {
 
     klass.prototype.constructor = klass;
 
-;;; if( debug.isCallTraceEnabled() ) {
-;;;   if( klassname ) {
-;;;     debug.callTrace('Define Class '+klassname+' as',klass);
-;;;   } else {
-;;;     debug.callTrace('Define anonymous Class as',klass);
-;;;   }
-;;; }
+/*debug*/ if( debug.isCallTraceEnabled() ) {
+/*debug*/   if( klassname ) {
+/*debug*/     debug.callTrace('Define Class '+klassname+' as',klass);
+/*debug*/   } else {
+/*debug*/     debug.callTrace('Define anonymous Class as',klass);
+/*debug*/   }
+/*debug*/ }
 
     return klass;
   }
 
-;;;function debugWrapper(method, property, args) {
-;;; debug.callTrace('Call',Object.getTypeFQName(this)+'.'+property,args);
-;;; try {
-;;;   var result = method.apply(this,args);
-;;; } catch(e) {
-;;;   debug.callTrace('Throw',e.message,'from',Object.getTypeFQName(this)+'.'+property,args);
-;;;   throw(e);
-;;; }
-;;; debug.callTrace('Return',result,'from',Object.getTypeFQName(this)+'.'+property,args);
-;;; return result;
-;;;}
+/*debug*/ function debugWrapper(method, property, args) {
+/*debug*/   debug.callTrace('Call',Object.getTypeFQName(this)+'.'+property,args);
+/*debug*/   try {
+/*debug*/     var result = method.apply(this,args);
+/*debug*/   } catch(e) {
+/*debug*/     debug.callTrace('Throw',e.message,'from',Object.getTypeFQName(this)+'.'+property,args);
+/*debug*/     throw(e);
+/*debug*/   }
+/*debug*/   debug.callTrace('Return',result,'from',Object.getTypeFQName(this)+'.'+property,args);
+/*debug*/   return result;
+/*debug*/ }
 
   /**
    *  Class#addMethods(methods) -> Class
@@ -228,7 +228,7 @@ var Class = (function() {
     for (var i = 0, length = properties.length; i < length; i++) {
       var property = properties[i], value, method = value = source[property];
       if( Object.isFunction(value) ) {
-;;;     value.methodName = property;
+/*debug*/ value.methodName = property;
         if (ancestor && Object.isFunction(value) &&
             value.argumentNames()[0] == "$super") {
           if( property === 'initialize' && !Object.isArray(ancestor.constructor.subclasses) ) {
@@ -241,13 +241,13 @@ var Class = (function() {
             })(property).wrap(method);
           }
         }
-;;;     if( debug.isCallTraceEnabled() ) {
-;;;       value = (function(method,property) {
-;;;           return function() { return debugWrapper.call(this,method,property,arguments); };
-;;;         })(value,property);
-;;;     }
+/*debug*/ if( debug.isCallTraceEnabled() ) {
+/*debug*/   value = (function(method,property) {
+/*debug*/       return function() { return debugWrapper.call(this,method,property,arguments); };
+/*debug*/     })(value,property);
+/*debug*/ }
         if( method !== value ) {
-;;;       value.methodName = property;
+/*debug*/ value.methodName = property;
           value.valueOf = method.valueOf.bind(method);
           value.toString = method.toString.bind(method);
         }

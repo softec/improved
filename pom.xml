@@ -140,7 +140,7 @@
             <configuration>
               <compressor>yahooUI</compressor>
               <optimizationLevel>5</optimizationLevel>
-              <strip>;;;</strip>
+              <strip>/*debug*/</strip>
             </configuration>
             <executions>
               <execution>
