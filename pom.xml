@@ -75,7 +75,7 @@
       <plugin>
         <groupId>org.codehaus.mojo.javascript</groupId>
         <artifactId>javascript-maven-plugin</artifactId>
-        <version>1.0-softec</version>
+        <version>1.1-softec</version>
         <extensions>true</extensions>
         <configuration>
           <preloadSources>
@@ -214,6 +214,30 @@
                   <scriptsDirectory>${project.build.directory}/titanium-scripts</scriptsDirectory>
                   <classifier>titanium</classifier>
                 </configuration>
+              </execution>
+              <execution>
+                  <id>titanium-test-compile</id>
+                  <phase>test-compile</phase>
+                  <goals>
+                      <goal>prepare-titanium-jasmine-tests</goal>
+                  </goals>
+                  <configuration>
+                      <outputDirectory>${project.build.directory}/titanium-scripts</outputDirectory>
+                      <specExcludes>
+                          <specExclude>dom/*.js</specExclude>
+                      </specExcludes>
+                  </configuration>
+              </execution>
+              <execution>
+                  <id>titanium-test</id>
+                  <phase>test</phase>
+                  <goals>
+                      <goal>titanium-jasmine</goal>
+                  </goals>
+                  <configuration>
+                      <outputDirectory>${project.build.directory}/titanium-scripts</outputDirectory>
+                      <testExecuteMode>virtual</testExecuteMode>
+                  </configuration>
               </execution>
             </executions>
           </plugin>
