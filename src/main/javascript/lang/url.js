@@ -50,7 +50,7 @@ Object.extend(String.prototype, (function() {
       };
 
   function matchURL(url) {
-    url = url.strip();
+    url = String.prototype.strip.call(url);
     return url.match(urlSplitRe) || [];
   }
 
