@@ -185,6 +185,9 @@
           <plugin>
             <groupId>org.codehaus.mojo.javascript</groupId>
             <artifactId>javascript-maven-plugin</artifactId>
+            <configuration>
+              <testOutputDirectory>${project.build.directory}/titanium/jasmine</testOutputDirectory>
+            </configuration>
             <executions>
               <execution>
                 <id>titanium-compile</id>
@@ -193,7 +196,7 @@
                   <goal>compile</goal>
                 </goals>
                 <configuration>
-                  <outputDirectory>${project.build.directory}/titanium-scripts</outputDirectory>
+                  <outputDirectory>${project.build.directory}/titanium/scripts</outputDirectory>
                   <descriptor>${basedir}/src/assembler/${project.artifactId}-titanium.xml</descriptor>
                   <excludes>
                     <exclude>deprecated.js</exclude>
@@ -211,7 +214,7 @@
                   <goal>package</goal>
                 </goals>
                 <configuration>
-                  <scriptsDirectory>${project.build.directory}/titanium-scripts</scriptsDirectory>
+                  <scriptsDirectory>${project.build.directory}/titanium/scripts</scriptsDirectory>
                   <classifier>titanium</classifier>
                 </configuration>
               </execution>
@@ -222,7 +225,7 @@
                       <goal>prepare-titanium-jasmine-tests</goal>
                   </goals>
                   <configuration>
-                      <outputDirectory>${project.build.directory}/titanium-scripts</outputDirectory>
+                      <outputDirectory>${project.build.directory}/titanium/scripts</outputDirectory>
                       <specExcludes>
                           <specExclude>dom/*.js</specExclude>
                       </specExcludes>
@@ -235,7 +238,6 @@
                       <goal>titanium-jasmine</goal>
                   </goals>
                   <configuration>
-                      <outputDirectory>${project.build.directory}/titanium-scripts</outputDirectory>
                       <testExecuteMode>virtual</testExecuteMode>
                   </configuration>
               </execution>
@@ -244,6 +246,46 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+       <id>titanium-release</id>
+       <build>
+         <plugins>
+           <plugin>
+             <groupId>org.codehaus.mojo.javascript</groupId>
+             <artifactId>javascript-maven-plugin</artifactId>
+             <configuration>
+               <compressor>none</compressor>
+               <strip>/*debug*/</strip>
+               <compressedDirectory>${project.build.directory}/titanium/scripts-compressed</compressedDirectory>
+             </configuration>
+             <executions>
+               <execution>
+                 <id>titanium-compress</id>
+                 <phase>compile</phase>
+                 <goals>
+                   <goal>compress</goal>
+                 </goals>
+                 <configuration>
+                   <scriptsDirectory>${project.build.directory}/titanium/scripts</scriptsDirectory>
+                   <strippedDirectory>${project.build.directory}/titanium/scripts-stripped</strippedDirectory>
+                 </configuration>
+               </execution>
+               <execution>
+                  <id>package-titanium-compressed</id>
+                  <phase>package</phase>
+                  <goals>
+                    <goal>attach-compressed</goal>
+                  </goals>
+                  <configuration>
+                    <classifier>titanium-compressed</classifier>
+                  </configuration>
+                </execution>
+              </executions>
+           </plugin>
+         </plugins>
+       </build>
+     </profile>
   </profiles>
 
   <repositories>
