@@ -48,7 +48,9 @@
 
     var responders = getEventResponders.call(object,eventName,true);
 
-    if (responders.pluck('handler').include(handler)) return object;
+    for( var i=0, len=responders.length; i<len; i++ ) {
+      if( responders[i].handler == handler ) return object;
+    }
 
     var responder = handler;
 
@@ -136,7 +138,7 @@
   
   function getBindings(create) {
     return (this.__ipd2bind || ((create) ? (this.__ipd2bind = {}) : null));
-  };
+  }
 
   function addBindingEventListener(source, eventName, handler) {
     var binding = { source: source, eventName: eventName, handler: handler };
@@ -149,7 +151,7 @@
       ImprovedEvent.addListener(source, eventName, handler);
     }
     return binding;
-  };
+  }
 
   function removeBindingEventListener(binding) {
     if( binding.source.removeListener ) {
@@ -161,7 +163,7 @@
     } else {
       ImprovedEvent.removeListener(binding.source,binding.eventName,binding.handler);
     }
-  };
+  }
 
   Object.extend(Object, {
     unbind: function(object, property) {
