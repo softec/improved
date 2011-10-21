@@ -942,6 +942,18 @@
     return container;
   }
 
+  var SIZE_FLAG = '__impd_size',
+      SIZE_TIMER = '__impd_size_timer';
+
+  function installSizeEventHandler(element, el, callback) {
+      el[SIZE_FLAG] = true;
+      el.observe('load',function(){
+        var timer = element[SIZE_TIMER];
+        if( timer ) clearTimeout(timer);
+        element[SIZE_TIMER] = callback.defer();
+      },true); // observe once
+  }
+
   function getShrinkWrappedDimensions(element, maxWidth, maxHeight, styleContext, className, callback) {
     var isElement = Object.isElement(element), elementParent, placeHolder, elementWidth, elementHeight;
 
@@ -963,8 +975,8 @@
 
     if( isElement && Object.isFunction(callback) ) {
       element.select('img').each(function(el){
-        if(!el.readAttribute("height") && !parseInt(el.getStyle('height'))) {
-          el.observe('load',callback,true); // observe once
+        if(!el[SIZE_FLAG] && !el.readAttribute("height") && !parseInt(el.getStyle('height'))) {
+          installSizeEventHandler(element,el,callback);
         }
       }, this);
     }
