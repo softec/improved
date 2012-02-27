@@ -24,7 +24,7 @@
 
 if( !Improved.titanium ) {
 
-describe('Ajax', function() {
+xdescribe('Ajax', function() {
 
   var content, content2,
       // lowercase comparison because of MSIE which presents HTML tags in uppercase

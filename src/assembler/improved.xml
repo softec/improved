@@ -57,6 +57,7 @@
         <include>dom/element.js</include>
         <include>dom/animation.js</include>
         <include>dom/button.js</include>
+        <include>dom/spin.js</include>
       </includes>
     </script>
   </scripts>
