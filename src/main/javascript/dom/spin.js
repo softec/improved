@@ -196,8 +196,11 @@ var Improved = (function (Improved) {
     spin: function(target, delay) {
       this.stop();
 
+      target = target || this.target;
+      delay = (!Object.isUndefined(delay)) ? delay : this.delay;
+
       if (delay) {
-        this.timeout = window.setTimeout(arguments.callee.bind(this,target),delay*1000);
+        this.timeout = window.setTimeout(arguments.callee.bind(this,target,0),delay*1000);
         return this;
       } else {
         this.timeout = null;
