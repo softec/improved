@@ -48,14 +48,12 @@ var Improved = (function (Improved) {
     if (drawLines) return; // do not run twice
 
     if (!ANIMATION_SUPPORTED && Improved.BrowserFeatures.addVMLSupport()) {
-      var newVMLElement = Improved.BrowserFeatures.newVMLElement;
-
       drawLines = function(el, o) {
         var r = o.length+o.width,
             s = 2*r;
 
         function grp() {
-          return newVMLElement('group', {coordsize: s +' '+s, coordorigin: -r +' '+-r}).setStyle({width: s, height: s});
+          return Element.newVMLElement('group', {coordsize: s +' '+s, coordorigin: -r +' '+-r}).setStyle({width: s, height: s});
         }
 
         var g = grp(),
@@ -64,15 +62,15 @@ var Improved = (function (Improved) {
 
         function seg(i, dx, filter) {
           g.insert(grp().setStyle({rotation: 360 / o.lines * i + 'deg', left: ~~dx})
-            .insert(newVMLElement('roundrect', {arcsize: 1}).setStyle({
+            .insert(Element.newVMLElement('roundrect', {arcsize: 1}).setStyle({
                 width: r,
                 height: o.width,
                 left: o.radius,
                 top: -o.width>>1,
                 filter: filter
               })
-              .insert(newVMLElement('fill', {color: o.color, opacity: o.opacity}))
-              .insert(newVMLElement('stroke', {opacity: 0})) // transparent stroke to fix color bleeding upon opacity change
+              .insert(Element.newVMLElement('fill', {color: o.color, opacity: o.opacity}))
+              .insert(Element.newVMLElement('stroke', {opacity: 0})) // transparent stroke to fix color bleeding upon opacity change
             )
           );
         }
@@ -183,7 +181,7 @@ var Improved = (function (Improved) {
         var alpha = Math.max(1-(i+s*astep)%f * ostep, o.opacity);
         changeOpacity(o.el, o.lines-s, alpha, o);
       }
-      o.timeout = o.el && setTimeout(arguments.callee, ~~(1000/fps));
+      o.timeout = o.el && window.setTimeout(arguments.callee, ~~(1000/fps));
     };
   }
 
@@ -195,8 +193,16 @@ var Improved = (function (Improved) {
 
     defaults: Object.clone(defaults),
 
-    spin: function(target) {
+    spin: function(target, delay) {
       this.stop();
+
+      if (delay) {
+        this.timeout = window.setTimeout(arguments.callee.bind(this,target),delay*1000);
+        return this;
+      } else {
+        this.timeout = null;
+      }
+
       var el = this.el = new Element('div').setStyle({position: 'relative', display:'block'}),
           ep, // element position
           tp; // target position
@@ -222,9 +228,12 @@ var Improved = (function (Improved) {
 
     stop: function() {
       var el = this.el;
+      if(this.timeout) {
+        window.clearTimeout(this.timeout);
+        this.timeout = null;
+      }
       if (el) {
         this.el = null;
-        clearTimeout(this.timeout);
         el.remove();
       }
       return this;

@@ -76,6 +76,29 @@ xdescribe('Spinner', function ()
     });
   });
 
+  it('can be started delayed', function ()
+  {
+    runs(function() {
+      spinner = new Improved.Spinner().spin(spinDiv, 1);
+    });
+    waitsFor(function() { return !Object.isUndefined(window.testResult) }, "Wait for test results", Number.POSITIVE_INFINITY);
+    runs(function() {
+      expect(window.testResult).toBeTruthy();
+      spinner.stop();
+    });
+  });
+
+  it('can be started delayed and stopped early', function ()
+  {
+    runs(function() {
+      spinner = new Improved.Spinner().spin(spinDiv, 1).stop();
+    });
+    waitsFor(function() { return !Object.isUndefined(window.testResult) }, "Wait for test results", Number.POSITIVE_INFINITY);
+    runs(function() {
+      expect(window.testResult).toBeTruthy();
+    });
+  });
+
   it('can be customized at construction time', function ()
   {
     runs(function() {

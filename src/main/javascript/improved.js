@@ -143,6 +143,7 @@ var Improved = (function (Improved) {
       while ( div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->', all[0] );
       return v;}());
       if( ie > 4 ) brw.IEVersion = ie;
+      brw.IEMode = document.documentMode || brw.IEVersion;
     }
 
     /**
@@ -218,6 +219,7 @@ var Improved = (function (Improved) {
         var constructor = window.Element || window.HTMLElement;
         return !!(constructor && constructor.prototype);
       })(),
+
       SpecificElementExtensions: (function() {
         if (brw.MobileSafari)
           return false;
@@ -238,37 +240,30 @@ var Improved = (function (Improved) {
         return isSupported;
       })(),
 
-      // VML support is inspired from:
-      // # Raphaël 2.0.2 - JavaScript Vector Library
-      // # Copyright 2008-2012 Dmitry Baranovskiy (http://raphaeljs.com)
-      // # Copyright 2008-2012 Sencha Labs (http://sencha.com)
-      // # Licensed under the MIT (http://raphaeljs.com/license.html) license.
-
       VML: (function() {
         if( typeof document.namespaces === 'undefined' ) return false;
         if( typeof document.namespaces['v'] !== 'undefined' ) return true;
       })(),
-      newVMLElement: function(tagName, prop) {
-        return new Element(tagName, prop);
-      },
+
       addVMLSupport: function() {
-        var self = Improved.BrowserFeatures;
-        if( typeof document.namespaces === 'undefined' ) return (self.VML = false);
-        if (self.VML) return (self.VML = true);
+        var self = Improved.BrowserFeatures, createVMLDocument;
 
-        document.createStyleSheet().addRule(".ivml", "behavior:url(#default#VML)");
-        try {
-          document.namespaces.add("v", "urn:schemas-microsoft-com:vml");
-          self.newVMLElement = function (tagName, prop) {
-            return $(document.createElement('<v:' + tagName + ' class="ivml">')).writeAttribute(prop || {});
-          };
-        } catch (e) {
-          self.newVMLElement = function (tagName, prop) {
-            return $(document.createElement('<' + tagName + ' xmlns="urn:schemas-microsoft.com:vml" class="ivml">')).writeAttribute(prop || {});
-          };
-        }
+        if( createVMLDocument ) return (self.VML = true);
+        if( typeof document.namespaces === 'undefined' || (brw.IE && brw.IEMode > 8)) return (self.VML = false);
 
-        return (self.VML = true);
+        var stylesheet = new Element('style');
+        stylesheet.type = 'text/css';
+        stylesheet.styleSheet.cssText = "v\\:* {behavior:url(#default#VML);display:inline-block}";
+        $$('head')[0].insert(stylesheet);
+
+        createVMLDocument = document.createDocumentFragment();
+        createVMLDocument.namespaces.add('v', 'urn:schemas-microsoft-com:vml');
+
+        Element.newVMLElement = function (tagName, prop) {
+          return $(createVMLDocument.createElement('v:' + tagName)).writeAttribute(prop || {});
+        };
+
+        return true;
       }
     };
   }
