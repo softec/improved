@@ -48,7 +48,7 @@ var Improved = (function (Improved) {
     if (drawLines) return; // do not run twice
 
     if (!ANIMATION_SUPPORTED && Improved.BrowserFeatures.addVMLSupport()) {
-      drawLines = function(el, o) {
+      drawLines = function(div, o) {
         var r = o.length+o.width,
             s = 2*r;
 
@@ -83,14 +83,14 @@ var Improved = (function (Improved) {
         for (i = 1; i <= o.lines; i++) {
           seg(i);
         }
-        return el.setStyle({
+        return div.setStyle({
           margin: margin + ' 0 0 ' + margin,
           zoom: 1
         }).insert(g);
       };
 
-      changeOpacity = function(el, i, val, o) {
-        var c = el.firstChild;
+      changeOpacity = function(div, i, val, o) {
+        var c = div.firstChild;
         o = o.shadow && o.lines || 0;
         if (c && i+o < c.childNodes.length) {
           c = c.childNodes[i+o]; c = c && c.firstChild; c = c && c.firstChild;
@@ -99,8 +99,8 @@ var Improved = (function (Improved) {
       };
     } else {
       if (!ANIMATION_SUPPORTED) {
-        changeOpacity = function(el, i, val) {
-          if (i < el.childNodes.length) el.childNodes[i].style.opacity = val;
+        changeOpacity = function(div, i, val) {
+          if (i < div.childNodes.length) div.childNodes[i].style.opacity = val;
         };
       } else {
         var el = new Element('style');
@@ -108,7 +108,7 @@ var Improved = (function (Improved) {
         sheet = el.sheet || el.styleSheet;
       }
 
-      drawLines = function(el, o) {
+      drawLines = function(div, o) {
         var i = 0,
             seg;
 
@@ -133,9 +133,9 @@ var Improved = (function (Improved) {
             animation: ANIMATION_SUPPORTED && addAnimation(o.opacity, o.trail, i, o.lines) + ' ' + 1/o.speed + 's linear infinite'
           });
           if (o.shadow) seg.insert(fill('#000', '0 0 4px ' + '#000').setStyle({top: 2+'px'}));
-          el.insert(seg.insert(fill(o.color, '0 0 1px rgba(0,0,0,.1)')));
+          div.insert(seg.insert(fill(o.color, '0 0 1px rgba(0,0,0,.1)')));
         }
-        return el;
+        return div.hide();
       };
     }
   }
@@ -179,25 +179,72 @@ var Improved = (function (Improved) {
       i++;
       for (var s=o.lines; s; s--) {
         var alpha = Math.max(1-(i+s*astep)%f * ostep, o.opacity);
-        changeOpacity(o.el, o.lines-s, alpha, o);
+        changeOpacity(o.div, o.lines-s, alpha, o);
       }
-      o.timeout = o.el && window.setTimeout(arguments.callee, ~~(1000/fps));
+      o.timeout = o.div && window.setTimeout(arguments.callee, ~~(1000/fps));
     };
+  }
+
+  function clear() {
+    var div = this.div;
+    if (div) {
+      this.div = null;
+      if (div.parentNode) div.remove();
+    }
   }
 
   Improved.Spinner = Class.create({
     initialize: function(options) {
       init();
       Object.extend(Object.extend(Object.extend(this,defaults), this.defaults), options || {});
+
+      if (this.target) {
+        this.draw();
+      }
     },
 
     defaults: Object.clone(defaults),
 
+    draw: function(target) {
+      this.clear();
+      target = target || this.target;
+
+      var div = this.div = new Element('div').setStyle({position: 'relative', display:'block'}),
+          ep, // element position
+          tp; // target position
+
+      div.setAttribute('aria-role', 'progressbar');
+
+      if (target) {
+        target = $(target);
+        target.insert({top: div});
+        tp = target.cumulativeOffset();
+        ep = div.cumulativeOffset();
+        div.setStyle({
+          left: ((target.offsetWidth >> 1) - ep.left+tp.left).toCssPx(),
+          top: ((target.offsetHeight >> 1) - ep.top+tp.top).toCssPx()
+        });
+      }
+
+      drawLines(div, this);
+      return this;
+    },
+
+    clear: function() {
+      this.stop();
+      clear.call(this);
+    },
+
     spin: function(target, delay) {
       this.stop();
 
-      target = target || this.target;
-      delay = (!Object.isUndefined(delay)) ? delay : this.delay;
+      if (Object.isNumber(target)) {
+        delay = target;
+        target = null;
+      }
+
+      target = target || this.target;
+      delay = (!Object.isUndefined(delay)) ? delay : this.delay;
 
       if (delay) {
         this.timeout = window.setTimeout(arguments.callee.bind(this,target,0),delay*1000);
@@ -206,23 +253,11 @@ var Improved = (function (Improved) {
         this.timeout = null;
       }
 
-      var el = this.el = new Element('div').setStyle({position: 'relative', display:'block'}),
-          ep, // element position
-          tp; // target position
-
-      el.setAttribute('aria-role', 'progressbar');
-
-      if (target) {
-        target = $(target);
-        target.insert({top: el});
-        tp = target.cumulativeOffset();
-        ep = el.cumulativeOffset();
-        el.setStyle({
-          left: ((target.offsetWidth >> 1) - ep.left+tp.left).toCssPx(),
-          top: ((target.offsetHeight >> 1) - ep.top+tp.top).toCssPx()
-        });
+      if (!this.div || target !== this.target) {
+        this.draw(target);
       }
-      drawLines(el, this);
+
+      this.div.show();
       if (!ANIMATION_SUPPORTED) {
         (getAnimation(this))();
       }
@@ -230,14 +265,17 @@ var Improved = (function (Improved) {
     },
 
     stop: function() {
-      var el = this.el;
+      var div = this.div;
       if(this.timeout) {
         window.clearTimeout(this.timeout);
         this.timeout = null;
       }
-      if (el) {
-        this.el = null;
-        el.remove();
+      if (div) {
+        if (div.parentNode !== this.target) {
+          clear.call(this);
+        } else {
+          div.hide();
+        }
       }
       return this;
     }
