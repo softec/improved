@@ -86,7 +86,7 @@ var Improved = (function (Improved) {
         return div.setStyle({
           margin: margin + ' 0 0 ' + margin,
           zoom: 1
-        }).insert(g);
+        }).insert(g).hide();
       };
 
       changeOpacity = function(div, i, val, o) {

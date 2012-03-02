@@ -67,7 +67,7 @@ xdescribe('Spinner', function ()
   {
     runs(function() {
       spinner = new Improved.Spinner().spin();
-      spinDiv.insert(spinner.el.setStyle({top: (spinDiv.offsetHeight >> 1).toCssPx(), left: (spinDiv.offsetWidth >> 1).toCssPx()}));
+      spinDiv.insert(spinner.div.setStyle({top: (spinDiv.offsetHeight >> 1).toCssPx(), left: (spinDiv.offsetWidth >> 1).toCssPx()}));
     });
     waitsFor(function() { return !Object.isUndefined(window.testResult) }, "Wait for test results", Number.POSITIVE_INFINITY);
     runs(function() {
@@ -80,6 +80,18 @@ xdescribe('Spinner', function ()
   {
     runs(function() {
       spinner = new Improved.Spinner().spin(spinDiv, 1);
+    });
+    waitsFor(function() { return !Object.isUndefined(window.testResult) }, "Wait for test results", Number.POSITIVE_INFINITY);
+    runs(function() {
+      expect(window.testResult).toBeTruthy();
+      spinner.stop();
+    });
+  });
+
+  it('can be started delayed from options', function ()
+  {
+    runs(function() {
+      spinner = new Improved.Spinner({target: spinDiv, delay: 1}).spin();
     });
     waitsFor(function() { return !Object.isUndefined(window.testResult) }, "Wait for test results", Number.POSITIVE_INFINITY);
     runs(function() {
@@ -164,6 +176,47 @@ xdescribe('Spinner', function ()
     runs(function() {
       expect(window.testResult).toBeTruthy();
       spinner.stop();
+    });
+  });
+
+  it('can be drawn from option than started', function ()
+  {
+    runs(function() {
+      spinner = new Improved.Spinner({target: spinDiv, delay:1});
+      spinner.spin();
+    });
+    waitsFor(function() { return !Object.isUndefined(window.testResult) }, "Wait for test results", Number.POSITIVE_INFINITY);
+    runs(function() {
+      expect(window.testResult).toBeTruthy();
+      spinner.stop();
+      expect(spinDiv.firstChild).toEqual(spinner.div);
+    });
+  });
+
+  it('can be started again', function ()
+  {
+    runs(function() {
+      spinner.spin();
+    });
+    waitsFor(function() { return !Object.isUndefined(window.testResult) }, "Wait for test results", Number.POSITIVE_INFINITY);
+    runs(function() {
+      expect(window.testResult).toBeTruthy();
+      spinner.stop();
+    });
+  });
+
+  it('can be remove and restarted', function ()
+  {
+    runs(function() {
+      spinner.clear();
+      expect(spinDiv.firstChild).not.toEqual(spinner.div);
+      spinner.spin();
+    });
+    waitsFor(function() { return !Object.isUndefined(window.testResult) }, "Wait for test results", Number.POSITIVE_INFINITY);
+    runs(function() {
+      expect(window.testResult).toBeTruthy();
+      spinner.stop();
+      expect(spinDiv.firstChild).toEqual(spinner.div);
     });
   });
 
