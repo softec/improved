@@ -548,6 +548,12 @@
         } else {
           responder = _getMouseResponder(element,eventName,handler);
         }
+      } else if (eventName == 'input' && _getDOMEventName(eventName) == 'propertychange') {
+        if( !!once ) {
+          responder = _getInputResponder(element,eventName,handler,registry,respondersForEvent);
+        } else {
+          responder = _getInputResponder(element,eventName,handler);
+        }
       } else {
         if( !!once ) {
           responder = _getDomResponder(element,eventName,handler,registry,respondersForEvent);
@@ -621,6 +627,16 @@
     };
   }
 
+  function _getInputResponder(element,eventName,handler,registry,responders) {
+    return function(event) {
+      if (event.propertyName.toLowerCase () == "value") {
+        Event.extend(event, element);
+        if( registry && responders ) { _removeListener(element,eventName,registry,responders,arguments.callee); }
+        handler.call(element, event);
+      }
+    };
+  }
+
   function _getDomResponder(element,eventName,handler,registry,responders) {
     return function(event) {
       Event.extend(event, element);
@@ -660,6 +676,9 @@
   }
   if ('transitionend' != Improved.BrowserExtensions.transitionEnd) {
     Object.extend(translations,{ transitionend: Improved.BrowserExtensions.transitionEnd });
+  }
+  if (Improved.Browser.IE && Improved.Browser.IEMode < 9) {
+    Object.extend(translations,{ input: 'propertychange' });
   }
 
   /**
