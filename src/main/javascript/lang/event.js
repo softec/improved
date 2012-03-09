@@ -90,12 +90,11 @@
     var i = responders.length, responder;
     while (i--) {
       if (responders[i].handler === handler) {
-        responder = i;
         break;
       }
     }
 
-    if( responder == -1 ) return object;
+    if( i == -1 ) return object;
 
     responders.splice(i,1);
     return object;

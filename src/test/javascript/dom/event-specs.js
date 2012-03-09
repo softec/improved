@@ -146,9 +146,23 @@ describe('Event (dom)', function() {
     observer1.reset();
     observer2.reset();
     span.stopObserving("test:somethingHappened", observer1);
+    span.fire("test:somethingHappened");
+    expect(observer1).not.toHaveBeenCalled();
+    expect(observer2).toHaveBeenCalled();
+
+    observer1.reset();
+    observer2.reset();
     span.stopObserving("test:somethingHappened", observer2);
     span.fire("test:somethingHappened");
     expect(observer1).not.toHaveBeenCalled();
+    expect(observer2).not.toHaveBeenCalled();
+
+    observer1.reset();
+    observer2.reset();
+    span.observe("test:somethingHappened", observer1);
+    span.stopObserving("test:somethingHappened", observer2);
+    span.fire("test:somethingHappened");
+    expect(observer1).toHaveBeenCalled();
     expect(observer2).not.toHaveBeenCalled();
   });
 

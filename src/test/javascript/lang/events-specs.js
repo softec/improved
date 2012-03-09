@@ -59,9 +59,23 @@ describe('Event (lang)', function() {
     observer1.reset();
     observer2.reset();
     Event.removeListener(obj, "somethingHappened", observer1);
+    Event.trigger(obj,"somethingHappened");
+    expect(observer1).not.toHaveBeenCalled();
+    expect(observer2).toHaveBeenCalled();
+
+    observer1.reset();
+    observer2.reset();
     Event.removeListener(obj, "somethingHappened", observer2);
     Event.trigger(obj,"somethingHappened");
     expect(observer1).not.toHaveBeenCalled();
+    expect(observer2).not.toHaveBeenCalled();
+
+    observer1.reset();
+    observer2.reset();
+    Event.addListener(obj, "somethingHappened", observer1);
+    Event.removeListener(obj, "somethingHappened", observer2);
+    Event.trigger(obj,"somethingHappened");
+    expect(observer1).toHaveBeenCalled();
     expect(observer2).not.toHaveBeenCalled();
   });
 
@@ -87,7 +101,7 @@ describe('Event (lang)', function() {
     Event.removeListener(obj, "somethingHappened", secondObserver);
   });
 
-  it('support multiple event observer with the same handler', function() {
+  it('support multiple event observers with the same handler', function() {
     var obj = {}, observer = jasmine.createSpy('Observe somethingHappened on obj');
 
     Event.addListener(obj, "somethingHappened", observer);
