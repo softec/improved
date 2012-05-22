@@ -498,10 +498,10 @@ Object.extend(String.prototype, (function() {
 
     return match[1].split(separator || '&').inject({ }, function(hash, pair) {
       if ((pair = pair.split('='))[0]) {
-        var key = decodeURIComponent(pair.shift()),
+        var key = decodeURIComponent(pair.shift().replace(/\+/g,'%20')),
             value = pair.length > 1 ? pair.join('=') : pair[0];
 
-        if (value != undefined) value = decodeURIComponent(value);
+        if (value != undefined) value = decodeURIComponent(value.replace(/\+/g,'%20'));
 
         if (key in hash) {
           if (!Object.isArray(hash[key])) hash[key] = [hash[key]];

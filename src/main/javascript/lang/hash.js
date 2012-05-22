@@ -311,7 +311,7 @@ var Hash = Class.create(Enumerable, (function() {
 
   function toQueryPair(key, value) {
     if (Object.isUndefined(value)) return key;
-    return key + '=' + encodeURIComponent(String.interpret(value));
+    return key + '=' + encodeURIComponent(String.interpret(value)).replace(/%20/g,'+');
   }
 
   /** related to: String#toQueryParams
@@ -355,7 +355,7 @@ var Hash = Class.create(Enumerable, (function() {
   **/
   function toQueryString() {
     return this.inject([], function(results, pair) {
-      var key = encodeURIComponent(pair.key), values = pair.value;
+      var key = encodeURIComponent(pair.key).replace(/%20/g,'+'), values = pair.value;
 
       if (values && typeof values == 'object') {
         if (Object.isArray(values)) {

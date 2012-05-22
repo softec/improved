@@ -144,7 +144,7 @@ var Form = {
     } else {
       initial = '';
       accumulator = function(result, key, value) {
-        return result + (result ? '&' : '') + encodeURIComponent(key) + '=' + encodeURIComponent(value);
+        return result + (result ? '&' : '') + encodeURIComponent(key).replace(/%20/g,'+') + '=' + encodeURIComponent(value).replace(/%20/g,'+');
       }
     }
 
