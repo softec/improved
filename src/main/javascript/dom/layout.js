@@ -975,7 +975,8 @@
 
     if( isElement && Object.isFunction(callback) ) {
       element.select('img').each(function(el){
-        if(!el[SIZE_FLAG] && !el.readAttribute("height") && !parseInt(el.getStyle('height'))) {
+        if(!el[SIZE_FLAG] && ((!el.readAttribute("height") && !parseInt(el.getStyle('height')))
+            || (Improved.Browser.IE && el.getStyle('height') == '30px'))) {
           installSizeEventHandler(element,el,callback);
         }
       }, this);
