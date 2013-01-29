@@ -198,7 +198,7 @@ var Improved = (function (Improved) {
         },
 
         getAnimationBase: function(element) {
-          return element.getOpacity();
+          return parseFloat(element.getOpacity());
         },
 
         animator: function(frame, base, element, callback, opacity) {
