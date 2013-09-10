@@ -28,7 +28,7 @@
   <packaging>javascript</packaging>
 
   <name>Improved Javascript library</name>
-  <description>Currently based on Prototype.js, it improved javascript language</description>
+  <description>Improved is a JavaScript framework that aims to ease development of dynamic web applications based on the Prototype Javascript Framework initiated by Sam Stephenson.</description>
   <url>http://www.softec.lu/js/improved</url>
 
   <developers>
